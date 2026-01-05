@@ -22,6 +22,7 @@
 #ifndef _GYNX_ALGORITHMS_VALID_HPP_
 #define _GYNX_ALGORITHMS_VALID_HPP_
 
+#include <algorithm>
 #include <cstdint>
 #include <iterator>
 
@@ -30,9 +31,9 @@
 namespace gynx {
 
 /// @brief Sequence type for validation
-enum class sequence_type {
-    nucleotide,  ///< DNA/RNA sequence
-    peptide      ///< Protein/amino acid sequence
+enum class sequence_type
+{   nucleotide   ///< DNA/RNA sequence
+,   peptide      ///< Protein/amino acid sequence
 };
 
 /// @brief Check if all characters in a sequence are valid.
@@ -42,17 +43,20 @@ enum class sequence_type {
 /// @param type Type of sequence to validate (nucleotide or peptide)
 /// @return true if all characters are valid, false otherwise
 template<typename Iterator>
-constexpr bool valid(Iterator first, Iterator last, sequence_type type = sequence_type::nucleotide)
-{
+constexpr bool valid
+(   Iterator first
+,   Iterator last
+,   sequence_type type = sequence_type::nucleotide
+)
+{   typedef typename std::iterator_traits<Iterator>::value_type T;
     const auto& table = (type == sequence_type::nucleotide) 
-        ? lut::valid_nucleotide 
-        : lut::valid_peptide;
-    
-    for (auto it = first; it != last; ++it)
-    {   if (!table[static_cast<uint8_t>(*it)])
-            return false;
-    }
-    return true;
+    ?   lut::valid_nucleotide 
+    :   lut::valid_peptide;
+
+    std::size_t sum = 0;
+    while (first != last)
+        sum += table[static_cast<uint8_t>(*first++)];
+    return sum == 0;
 }
 
 /// @brief Check if all characters in a sequence container are valid.
@@ -61,9 +65,11 @@ constexpr bool valid(Iterator first, Iterator last, sequence_type type = sequenc
 /// @param type Type of sequence to validate (nucleotide or peptide)
 /// @return true if all characters are valid, false otherwise
 template<typename Container>
-constexpr bool valid(const Container& seq, sequence_type type = sequence_type::nucleotide)
-{
-    return valid(std::begin(seq), std::end(seq), type);
+constexpr bool valid
+(   const Container& seq
+,   sequence_type type = sequence_type::nucleotide
+)
+{   return valid(std::begin(seq), std::end(seq), type);
 }
 
 /// @brief Check if all characters in a sequence are valid nucleotides.
@@ -73,8 +79,7 @@ constexpr bool valid(const Container& seq, sequence_type type = sequence_type::n
 /// @return true if all characters are valid nucleotides, false otherwise
 template<typename Iterator>
 constexpr bool valid_nucleotide(Iterator first, Iterator last)
-{
-    return valid(first, last, sequence_type::nucleotide);
+{   return valid(first, last, sequence_type::nucleotide);
 }
 
 /// @brief Check if all characters in a sequence container are valid nucleotides.
@@ -83,8 +88,7 @@ constexpr bool valid_nucleotide(Iterator first, Iterator last)
 /// @return true if all characters are valid nucleotides, false otherwise
 template<typename Container>
 constexpr bool valid_nucleotide(const Container& seq)
-{
-    return valid(seq, sequence_type::nucleotide);
+{   return valid(seq, sequence_type::nucleotide);
 }
 
 /// @brief Check if all characters in a sequence are valid peptides (amino acids).
@@ -94,8 +98,7 @@ constexpr bool valid_nucleotide(const Container& seq)
 /// @return true if all characters are valid peptides, false otherwise
 template<typename Iterator>
 constexpr bool valid_peptide(Iterator first, Iterator last)
-{
-    return valid(first, last, sequence_type::peptide);
+{   return valid(first, last, sequence_type::peptide);
 }
 
 /// @brief Check if all characters in a sequence container are valid peptides (amino acids).
@@ -104,8 +107,7 @@ constexpr bool valid_peptide(Iterator first, Iterator last)
 /// @return true if all characters are valid peptides, false otherwise
 template<typename Container>
 constexpr bool valid_peptide(const Container& seq)
-{
-    return valid(seq, sequence_type::peptide);
+{   return valid(seq, sequence_type::peptide);
 }
 
 } // namespace gynx

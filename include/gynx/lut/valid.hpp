@@ -29,120 +29,120 @@ namespace gynx::lut {
 
 /// @brief Compile-time generated lookup table for valid nucleotide characters.
 /// Valid characters include: A, C, G, T, U, N (both uppercase and lowercase)
-constexpr std::array<bool, 256> create_valid_nucleotide_table()
-{   std::array<bool, 256> table{};
-    table.fill(false);
-    
+constexpr std::array<uint8_t, 256> create_valid_nucleotide_table()
+{   std::array<uint8_t, 256> table{};
+    table.fill(1); // 1 = invalid, 0 = valid
+
     // Valid nucleotide characters (uppercase)
-    table['A'] = true;
-    table['C'] = true;
-    table['G'] = true;
-    table['T'] = true;
-    table['U'] = true;
-    table['N'] = true; // ambiguous/unknown base
-    
+    table['A'] = 0;
+    table['C'] = 0;
+    table['G'] = 0;
+    table['T'] = 0;
+    table['U'] = 0;
+    table['N'] = 0; // ambiguous/unknown base
+
     // Valid nucleotide characters (lowercase)
-    table['a'] = true;
-    table['c'] = true;
-    table['g'] = true;
-    table['t'] = true;
-    table['u'] = true;
-    table['n'] = true;
-    
+    table['a'] = 0;
+    table['c'] = 0;
+    table['g'] = 0;
+    table['t'] = 0;
+    table['u'] = 0;
+    table['n'] = 0;
+
     // IUPAC ambiguity codes (uppercase)
-    table['R'] = true; // A or G (puRine)
-    table['Y'] = true; // C or T (pYrimidine)
-    table['S'] = true; // G or C (Strong)
-    table['W'] = true; // A or T (Weak)
-    table['K'] = true; // G or T (Keto)
-    table['M'] = true; // A or C (aMino)
-    table['B'] = true; // C, G or T (not A)
-    table['D'] = true; // A, G or T (not C)
-    table['H'] = true; // A, C or T (not G)
-    table['V'] = true; // A, C or G (not T)
-    
+    table['R'] = 0; // A or G (puRine)
+    table['Y'] = 0; // C or T (pYrimidine)
+    table['S'] = 0; // G or C (Strong)
+    table['W'] = 0; // A or T (Weak)
+    table['K'] = 0; // G or T (Keto)
+    table['M'] = 0; // A or C (aMino)
+    table['B'] = 0; // C, G or T (not A)
+    table['D'] = 0; // A, G or T (not C)
+    table['H'] = 0; // A, C or T (not G)
+    table['V'] = 0; // A, C or G (not T)
+
     // IUPAC ambiguity codes (lowercase)
-    table['r'] = true;
-    table['y'] = true;
-    table['s'] = true;
-    table['w'] = true;
-    table['k'] = true;
-    table['m'] = true;
-    table['b'] = true;
-    table['d'] = true;
-    table['h'] = true;
-    table['v'] = true;
-    
+    table['r'] = 0;
+    table['y'] = 0;
+    table['s'] = 0;
+    table['w'] = 0;
+    table['k'] = 0;
+    table['m'] = 0;
+    table['b'] = 0;
+    table['d'] = 0;
+    table['h'] = 0;
+    table['v'] = 0;
+
     return table;
 }
 
 /// @brief Compile-time generated lookup table for valid peptide (amino acid) characters.
 /// Valid characters include: 20 standard amino acids + ambiguous codes (both uppercase and lowercase)
-constexpr std::array<bool, 256> create_valid_peptide_table()
-{   std::array<bool, 256> table{};
-    table.fill(false);
-    
+constexpr std::array<uint8_t, 256> create_valid_peptide_table()
+{   std::array<uint8_t, 256> table{};
+    table.fill(1); // 1 = invalid, 0 = valid
+
     // 20 standard amino acids (uppercase)
-    table['A'] = true; // Alanine
-    table['C'] = true; // Cysteine
-    table['D'] = true; // Aspartic acid
-    table['E'] = true; // Glutamic acid
-    table['F'] = true; // Phenylalanine
-    table['G'] = true; // Glycine
-    table['H'] = true; // Histidine
-    table['I'] = true; // Isoleucine
-    table['K'] = true; // Lysine
-    table['L'] = true; // Leucine
-    table['M'] = true; // Methionine
-    table['N'] = true; // Asparagine
-    table['P'] = true; // Proline
-    table['Q'] = true; // Glutamine
-    table['R'] = true; // Arginine
-    table['S'] = true; // Serine
-    table['T'] = true; // Threonine
-    table['V'] = true; // Valine
-    table['W'] = true; // Tryptophan
-    table['Y'] = true; // Tyrosine
-    
+    table['A'] = 0; // Alanine
+    table['C'] = 0; // Cysteine
+    table['D'] = 0; // Aspartic acid
+    table['E'] = 0; // Glutamic acid
+    table['F'] = 0; // Phenylalanine
+    table['G'] = 0; // Glycine
+    table['H'] = 0; // Histidine
+    table['I'] = 0; // Isoleucine
+    table['K'] = 0; // Lysine
+    table['L'] = 0; // Leucine
+    table['M'] = 0; // Methionine
+    table['N'] = 0; // Asparagine
+    table['P'] = 0; // Proline
+    table['Q'] = 0; // Glutamine
+    table['R'] = 0; // Arginine
+    table['S'] = 0; // Serine
+    table['T'] = 0; // Threonine
+    table['V'] = 0; // Valine
+    table['W'] = 0; // Tryptophan
+    table['Y'] = 0; // Tyrosine
+
     // 20 standard amino acids (lowercase)
-    table['a'] = true;
-    table['c'] = true;
-    table['d'] = true;
-    table['e'] = true;
-    table['f'] = true;
-    table['g'] = true;
-    table['h'] = true;
-    table['i'] = true;
-    table['k'] = true;
-    table['l'] = true;
-    table['m'] = true;
-    table['n'] = true;
-    table['p'] = true;
-    table['q'] = true;
-    table['r'] = true;
-    table['s'] = true;
-    table['t'] = true;
-    table['v'] = true;
-    table['w'] = true;
-    table['y'] = true;
-    
+    table['a'] = 0;
+    table['c'] = 0;
+    table['d'] = 0;
+    table['e'] = 0;
+    table['f'] = 0;
+    table['g'] = 0;
+    table['h'] = 0;
+    table['i'] = 0;
+    table['k'] = 0;
+    table['l'] = 0;
+    table['m'] = 0;
+    table['n'] = 0;
+    table['p'] = 0;
+    table['q'] = 0;
+    table['r'] = 0;
+    table['s'] = 0;
+    table['t'] = 0;
+    table['v'] = 0;
+    table['w'] = 0;
+    table['y'] = 0;
+
     // Ambiguous/special codes (uppercase)
-    table['B'] = true; // Aspartic acid or Asparagine
-    table['Z'] = true; // Glutamic acid or Glutamine
-    table['X'] = true; // Unknown or any amino acid
-    table['*'] = true; // Stop codon
-    table['U'] = true; // Selenocysteine
-    table['O'] = true; // Pyrrolysine
-    table['J'] = true; // Leucine or Isoleucine
-    
+    table['B'] = 0; // Aspartic acid or Asparagine
+    table['Z'] = 0; // Glutamic acid or Glutamine
+    table['X'] = 0; // Unknown or any amino acid
+    table['*'] = 0; // Stop codon
+    table['U'] = 0; // Selenocysteine
+    table['O'] = 0; // Pyrrolysine
+    table['J'] = 0; // Leucine or Isoleucine
+
     // Ambiguous/special codes (lowercase)
-    table['b'] = true;
-    table['z'] = true;
-    table['x'] = true;
-    table['u'] = true;
-    table['o'] = true;
-    table['j'] = true;
-    
+    table['b'] = 0;
+    table['z'] = 0;
+    table['x'] = 0;
+    table['u'] = 0;
+    table['o'] = 0;
+    table['j'] = 0;
+
     return table;
 }
 

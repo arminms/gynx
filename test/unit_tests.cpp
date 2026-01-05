@@ -462,7 +462,7 @@ TEMPLATE_TEST_CASE( "gynx::io::fastaqz", "[io][in][out]", std::vector<char>)
     }
 }
 
-TEMPLATE_TEST_CASE( "gynx::algorithms::valid", "[algorithms][valid]", std::vector<char>)
+TEMPLATE_TEST_CASE( "gynx::valid", "[algorithm][valid]", std::vector<char>)
 {   typedef TestType T;
 
 // -- nucleotide validation ----------------------------------------------------
@@ -527,7 +527,8 @@ TEMPLATE_TEST_CASE( "gynx::algorithms::valid", "[algorithms][valid]", std::vecto
     {   gynx::sq_gen<T> s1{"ACDEFGHIKLMNPQRSTVWY"};
         CHECK(gynx::valid(s1, gynx::sequence_type::peptide));
         CHECK(gynx::valid_peptide(s1));
-        
+        CHECK_FALSE(gynx::valid_nucleotide(s1));
+
         // lowercase
         gynx::sq_gen<T> s2{"acdefghiklmnpqrstvwy"};
         CHECK(gynx::valid_peptide(s2));
