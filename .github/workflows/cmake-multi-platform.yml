@@ -41,9 +41,8 @@ jobs:
 
     - name: Configure with CMake (macOS)
       run: |
-        export OpenMP_ROOT=$(brew --prefix)/opt/libomp
-        run: |
-          cmake -S ${{github.workspace}} -B build \
+        brew install llvm libomp
+        CXX=$(brew --prefix llvm)/bin/clang++ -S ${{github.workspace}} -B build
           -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake
       if: matrix.os == 'macos-latest'
 

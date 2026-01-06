@@ -367,7 +367,7 @@ TEMPLATE_TEST_CASE( "gynx::sq_view", "[view]", std::vector<char>)
         // Verify that sq_view_gen satisfies the view concept
         static_assert(std::ranges::view<gynx::sq_view_gen<T>>);
         static_assert(std::ranges::range<gynx::sq_view_gen<T>>);
-        
+
         // Test composability with range adaptors
         auto transformed = v | std::views::transform
         (   [](auto c)
@@ -385,7 +385,6 @@ TEMPLATE_TEST_CASE( "gynx::sq_view", "[view]", std::vector<char>)
             | std::views::reverse 
             | std::views::transform([](auto c) { return std::tolower(c); })
             | std::views::take(3);
-
         std::string r(result.begin(), result.end());
         CHECK(r == "tgc");
     }
@@ -471,26 +470,20 @@ TEMPLATE_TEST_CASE( "gynx::valid", "[algorithm][valid]", std::vector<char>)
     {   gynx::sq_gen<T> s1{"ACGT"};
         CHECK(gynx::valid(s1, gynx::sequence_type::nucleotide));
         CHECK(gynx::valid_nucleotide(s1));
-        
         gynx::sq_gen<T> s2{"ACGTACGTNNN"};
         CHECK(gynx::valid_nucleotide(s2));
-        
         // lowercase
         gynx::sq_gen<T> s3{"acgtacgt"};
         CHECK(gynx::valid_nucleotide(s3));
-        
         // mixed case
         gynx::sq_gen<T> s4{"AcGtNn"};
         CHECK(gynx::valid_nucleotide(s4));
-        
         // with RNA base U
         gynx::sq_gen<T> s5{"ACGU"};
         CHECK(gynx::valid_nucleotide(s5));
-        
         // with IUPAC ambiguity codes
         gynx::sq_gen<T> s6{"ACGTRYMKSWBDHVN"};
         CHECK(gynx::valid_nucleotide(s6));
-        
         gynx::sq_gen<T> s7{"acgtrymkswbdhvn"};
         CHECK(gynx::valid_nucleotide(s7));
     }
@@ -499,18 +492,14 @@ TEMPLATE_TEST_CASE( "gynx::valid", "[algorithm][valid]", std::vector<char>)
     {   // with invalid character
         gynx::sq_gen<T> s1{"ACGT123"};
         CHECK_FALSE(gynx::valid_nucleotide(s1));
-        
         gynx::sq_gen<T> s2{"ACGT X"};
         CHECK_FALSE(gynx::valid_nucleotide(s2));
-        
         // with space
         gynx::sq_gen<T> s3{"ACG T"};
         CHECK_FALSE(gynx::valid_nucleotide(s3));
-        
         // with newline
         gynx::sq_gen<T> s4{"ACGT\n"};
         CHECK_FALSE(gynx::valid_nucleotide(s4));
-        
         // peptide sequence
         gynx::sq_gen<T> s5{"MVHLTPEEK"};
         CHECK_FALSE(gynx::valid_nucleotide(s5));
@@ -528,23 +517,18 @@ TEMPLATE_TEST_CASE( "gynx::valid", "[algorithm][valid]", std::vector<char>)
         CHECK(gynx::valid(s1, gynx::sequence_type::peptide));
         CHECK(gynx::valid_peptide(s1));
         CHECK_FALSE(gynx::valid_nucleotide(s1));
-
         // lowercase
         gynx::sq_gen<T> s2{"acdefghiklmnpqrstvwy"};
         CHECK(gynx::valid_peptide(s2));
-        
         // mixed case
         gynx::sq_gen<T> s3{"MvHlTpEeK"};
         CHECK(gynx::valid_peptide(s3));
-        
         // with ambiguous codes
         gynx::sq_gen<T> s4{"ACBZX"};
         CHECK(gynx::valid_peptide(s4));
-        
         // with special amino acids
         gynx::sq_gen<T> s5{"ACUO"};
         CHECK(gynx::valid_peptide(s5));
-        
         // with stop codon
         gynx::sq_gen<T> s6{"MVHLT*"};
         CHECK(gynx::valid_peptide(s6));
@@ -554,15 +538,12 @@ TEMPLATE_TEST_CASE( "gynx::valid", "[algorithm][valid]", std::vector<char>)
     {   // with number
         gynx::sq_gen<T> s1{"ACDE123"};
         CHECK_FALSE(gynx::valid_peptide(s1));
-        
         // with space
         gynx::sq_gen<T> s2{"ACDE F"};
         CHECK_FALSE(gynx::valid_peptide(s2));
-        
         // with newline
         gynx::sq_gen<T> s3{"ACDEF\n"};
         CHECK_FALSE(gynx::valid_peptide(s3));
-        
         // with invalid special character
         gynx::sq_gen<T> s4{"ACDE-F"};
         CHECK_FALSE(gynx::valid_peptide(s4));
@@ -577,17 +558,35 @@ TEMPLATE_TEST_CASE( "gynx::valid", "[algorithm][valid]", std::vector<char>)
 
     SECTION( "validation with iterators" )
     {   gynx::sq_gen<T> s{"ACGTACGT"};
-        
         // full range
         CHECK(gynx::valid(s.begin(), s.end(), gynx::sequence_type::nucleotide));
         CHECK(gynx::valid_nucleotide(s.begin(), s.end()));
-        
         // partial range
         CHECK(gynx::valid_nucleotide(s.begin(), s.begin() + 4));
-        
         // substring
         auto sub = s(0, 4);
         CHECK(gynx::valid_nucleotide(sub));
+    }
+
+    SECTION( "validation with execution policy" )
+    {   gynx::sq_gen<T> s;
+        s.load(SAMPLE_GENOME, 0);
+        CHECK(s.size() > 0);
+        CHECK(gynx::valid_nucleotide(s));
+        CHECK(gynx::valid_nucleotide(gynx::execution::seq, s));
+        CHECK(gynx::valid_nucleotide(gynx::execution::unseq, s));
+        CHECK(gynx::valid_nucleotide(gynx::execution::par, s));
+        CHECK(gynx::valid_nucleotide(gynx::execution::par_unseq, s));
+
+        // introduce an invalid character and ensure policy overload detects it
+        s[2] = 'Z';
+        CHECK_FALSE(gynx::valid_nucleotide(gynx::execution::seq, s));
+        CHECK_FALSE(gynx::valid_nucleotide(gynx::execution::unseq, s));
+        CHECK_FALSE(gynx::valid_nucleotide(gynx::execution::par, s));
+        CHECK_FALSE(gynx::valid_nucleotide(gynx::execution::par_unseq, s));
+
+        // peptide validation remains true with Z
+        CHECK(gynx::valid_peptide(gynx::execution::par, s));
     }
 
     SECTION( "validation with sq_view" )
@@ -614,7 +613,7 @@ TEMPLATE_TEST_CASE( "gynx::valid", "[algorithm][valid]", std::vector<char>)
         gynx::sq_gen<T> s1{"EFIKLPQVWY"};
         CHECK(gynx::valid_peptide(s1));
         CHECK_FALSE(gynx::valid_nucleotide(s1));
-        
+
         // All nucleotides are also valid peptides (overlap in alphabet)
         gynx::sq_gen<T> s2{"ACGT"};
         CHECK(gynx::valid_nucleotide(s2));

@@ -4,8 +4,8 @@ subject: Gynx Quickstart
 short_title: Get Started
 description: Using Gynx in a nutshell.
 kernelspec:
-  name: xcpp17
-  display_name: C++17
+  name: xcpp20-openmp
+  display_name: C++20-OpenMP
 ---
 
 # Start using Gynx
@@ -22,6 +22,7 @@ kernelspec:
 #include <gynx/sq.hpp>
 #include <gynx/sq_view.hpp>
 #include <gynx/io/fastaqz.hpp>
+#include <gynx/algorithms/valid.hpp>
 ```
 
 Making a biological sequence in Gynx is easy:
@@ -191,4 +192,35 @@ ss << s;
 gynx::sq t;
 ss >> t;
 std::cout << t;
+```
+### valid() algorithm
++++
+```{code-cell} cpp
+gynx::sq s;
+s.load("/home/armin/src/gynx/build/_deps/sample_genome-src/GCF_000204255.1_ASM20425v1_genomic.fna.gz");
+```
++++
+```{code-cell} cpp
+%%timeit
+gynx::valid_nucleotide(s);
+```
++++
+```{code-cell} cpp
+%%timeit
+gynx::valid_nucleotide(gynx::execution::seq, s);
+```
++++
+```{code-cell} cpp
+%%timeit
+gynx::valid_nucleotide(gynx::execution::unseq, s);
+```
++++
+```{code-cell} cpp
+%%timeit
+gynx::valid_nucleotide(gynx::execution::par, s);
+```
++++
+```{code-cell} cpp
+%%timeit
+gynx::valid_nucleotide(gynx::execution::par_unseq, s);
 ```
