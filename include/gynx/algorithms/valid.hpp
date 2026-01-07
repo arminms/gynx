@@ -101,9 +101,12 @@ inline bool valid
     }
     else if constexpr (std::is_same_v<std::decay_t<ExecPolicy>, gynx::execution::parallel_unsequenced_policy>)
     {
-        #pragma omp parallel for simd default(none) reduction(+:sum) shared(first,table,n)
-        for (int i = 0; i < n; ++i)
-            sum += table[static_cast<uint8_t>(first[i])];
+        #pragma omp parallel default(none) reduction(+:sum) shared(first,table,n)
+        {
+            #pragma omp for simd
+            for (int i = 0; i < n; ++i)
+                sum += table[static_cast<uint8_t>(first[i])];
+        }
     }
     else
         return valid(first, last, type);
