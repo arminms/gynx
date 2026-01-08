@@ -46,6 +46,7 @@
 #include <gynx/sq_view.hpp>
 #include <gynx/visitor.hpp>
 #include <gynx/io/fastaqz.hpp>
+#include <gynx/memory.hpp>
 
 namespace gynx {
 //
@@ -415,10 +416,14 @@ public:
 #if defined(__CUDACC__)
         if constexpr
         (   std::is_same_v<Container, thrust::device_vector<value_type>>
-        ||  std::is_same_v<Container, thrust::universal_vector<value_type>>
         )
-        {   thrust::host_vector<value_type> hv(_sq);
-            os.write(hv.data(), hv.size());
+        {   universal_host_pinned_vector<value_type> uhpv(_sq);
+            os.write(thrust::raw_pointer_cast(uhpv.data()), uhpv.size());
+        }
+        else if constexpr
+        (   std::is_same_v<Container, thrust::universal_vector<value_type>>
+        )
+        {   os.write(thrust::raw_pointer_cast(_sq.data()), _sq.size());
         }
         else
 #endif  //__CUDACC__
@@ -445,11 +450,15 @@ public:
 #if defined(__CUDACC__)
         if constexpr
         (   std::is_same_v<Container, thrust::device_vector<value_type>>
-        ||  std::is_same_v<Container, thrust::universal_vector<value_type>>
         )
-        {   thrust::host_vector<value_type> hv(n);
-            is.read(hv.data(), n);
-            thrust::copy(hv.begin(), hv.end(), _sq.begin());
+        {   universal_host_pinned_vector<value_type> uhpv(n);
+            is.read(thrust::raw_pointer_cast(uhpv.data()), n);
+            thrust::copy(uhpv.begin(), uhpv.end(), _sq.begin());
+        }
+        else if constexpr
+        (   std::is_same_v<Container, thrust::universal_vector<value_type>>
+        )
+        {   is.read(thrust::raw_pointer_cast(_sq.data()), n);
         }
         else
 #endif  //__CUDACC__

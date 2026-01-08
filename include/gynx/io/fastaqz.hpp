@@ -28,6 +28,7 @@
 
 #include <zlib.h>
 #include <gynx/io/kseq.h>
+#include <gynx/memory.hpp>
 
 namespace gynx {
 
@@ -154,13 +155,13 @@ struct fasta
         );
         const typename Sequence::value_type* data = nullptr;
 #if defined(__CUDACC__) // handle device_vector
-        thrust::host_vector<typename Sequence::value_type> h_seq;
+        universal_host_pinned_vector<typename Sequence::value_type> h_seq;
         if constexpr
         (   std::is_same_v<typename Sequence::container_type, thrust::device_vector<typename Sequence::value_type>>
         )
         {   h_seq.resize(std::size(seq));
             thrust::copy(seq.begin(), seq.end(), h_seq.begin());
-            data = h_seq.data();
+            data = thrust::raw_pointer_cast(h_seq.data());
         }
         else
         {   data = seq.data();
@@ -234,13 +235,13 @@ struct fasta_gz
         gzwrite(fp, header.c_str(), header.size());
         const typename Sequence::value_type* data = nullptr;
 #if defined(__CUDACC__) // handle device_vector
-        thrust::host_vector<typename Sequence::value_type> h_seq;
+        universal_host_pinned_vector<typename Sequence::value_type> h_seq;
         if constexpr
         (   std::is_same_v<typename Sequence::container_type, thrust::device_vector<typename Sequence::value_type>>
         )
         {   h_seq.resize(std::size(seq));
             thrust::copy(seq.begin(), seq.end(), h_seq.begin());
-            data = h_seq.data();
+            data = thrust::raw_pointer_cast(h_seq.data());
         }
         else
         {   data = seq.data();
@@ -307,13 +308,13 @@ struct fastq
         );
         const typename Sequence::value_type* data = nullptr;
 #if defined(__CUDACC__) // handle device_vector
-        thrust::host_vector<typename Sequence::value_type> h_seq;
+        universal_host_pinned_vector<typename Sequence::value_type> h_seq;
         if constexpr
         (   std::is_same_v<typename Sequence::container_type, thrust::device_vector<typename Sequence::value_type>>
         )
         {   h_seq.resize(std::size(seq));
             thrust::copy(seq.begin(), seq.end(), h_seq.begin());
-            data = h_seq.data();
+            data = thrust::raw_pointer_cast(h_seq.data());
         }
         else
         {   data = seq.data();
@@ -419,13 +420,13 @@ struct fastq_gz
         gzwrite(fp, header.c_str(), header.size());
         const typename Sequence::value_type* data = nullptr;
 #if defined(__CUDACC__) // handle device_vector
-        thrust::host_vector<typename Sequence::value_type> h_seq;
+        universal_host_pinned_vector<typename Sequence::value_type> h_seq;
         if constexpr
         (   std::is_same_v<typename Sequence::container_type, thrust::device_vector<typename Sequence::value_type>>
         )
         {   h_seq.resize(std::size(seq));
             thrust::copy(seq.begin(), seq.end(), h_seq.begin());
-            data = h_seq.data();
+            data = thrust::raw_pointer_cast(h_seq.data());
         }
         else
         {   data = seq.data();
