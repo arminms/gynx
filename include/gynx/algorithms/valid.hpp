@@ -39,12 +39,6 @@
 
 namespace gynx {
 
-/// @brief Sequence type for validation
-enum class sequence_type
-{   nucleotide   ///< DNA/RNA sequence
-,   peptide      ///< Protein/amino acid sequence
-};
-
 namespace detail {
 
 #if defined(__CUDACC__)
@@ -99,14 +93,12 @@ bool valid_device
 (   const ExecPolicy& policy
 ,   Iterator first
 ,   Iterator last
-,   sequence_type type = sequence_type::nucleotide
+,   bool nucleotide = false
 )
 {   typedef typename std::iterator_traits<Iterator>::value_type value_type;
     typedef typename std::iterator_traits<Iterator>::difference_type difference_type;
 
-    const auto& table = (type == sequence_type::nucleotide) 
-    ?   lut::valid_nucleotide 
-    :   lut::valid_peptide;
+    const auto& table = nucleotide ? lut::valid_nucleotide : lut::valid_peptide;
 
     cudaStream_t stream = 0;
     if constexpr (has_stream_member<ExecPolicy>)
@@ -145,16 +137,17 @@ bool valid_device
 /// @tparam Iterator Forward iterator type
 /// @param first Iterator to the beginning of the sequence
 /// @param last Iterator to the end of the sequence
-/// @param type Type of sequence to validate (nucleotide or peptide)
+/// @param nucleotide Type of sequence to validate (true for nucleotide,
+/// false for peptide/nucleotide)
 /// @return true if all characters are valid, false otherwise
 #if defined(__CUDACC__)
 template<device_resident_iterator Iterator>
 constexpr bool valid
 (   Iterator first
 ,   Iterator last
-,   sequence_type type = sequence_type::nucleotide
+,   bool nucleotide = false
 )
-{   return detail::valid_device(thrust::cuda::par, first, last, type);
+{   return detail::valid_device(thrust::cuda::par, first, last, nucleotide);
 }
 template<host_resident_iterator Iterator>
 #else
@@ -163,12 +156,9 @@ template<typename Iterator>
 constexpr bool valid
 (   Iterator first
 ,   Iterator last
-,   sequence_type type = sequence_type::nucleotide
+,   bool nucleotide = false
 )
-{   const auto& table = (type == sequence_type::nucleotide) 
-    ?   lut::valid_nucleotide 
-    :   lut::valid_peptide;
-
+{   const auto& table = nucleotide ? lut::valid_nucleotide : lut::valid_peptide;
     std::size_t sum = 0;
     while (first != last)
         sum += table[static_cast<uint8_t>(*first++)];
@@ -181,7 +171,8 @@ constexpr bool valid
 /// @param policy Execution policy controlling algorithm execution
 /// @param first Iterator to the beginning of the sequence
 /// @param last Iterator to the end of the sequence
-/// @param type Type of sequence to validate (nucleotide or peptide)
+/// @param nucleotide Type of sequence to validate (true for nucleotide,
+/// false for peptide/nucleotide)
 /// @return true if all characters are valid, false otherwise
 #if defined(__CUDACC__)
 template<typename ExecPolicy, device_resident_iterator Iterator>
@@ -189,13 +180,13 @@ inline bool valid
 (   ExecPolicy&& policy
 ,   Iterator first
 ,   Iterator last
-,   sequence_type type = sequence_type::nucleotide
+,   bool nucleotide = false
 )
 {   return detail::valid_device
     (   std::forward<ExecPolicy>(policy)
     ,   first
     ,   last
-    ,   type
+    ,   nucleotide
     );
 }
 template<typename ExecPolicy, host_resident_iterator Iterator>
@@ -207,16 +198,12 @@ inline bool valid
 (   ExecPolicy&& policy
 ,   Iterator first
 ,   Iterator last
-//  must be changed to:
-//  std::span<const uint8_t> lutv = std::span<const uint8_t>{lut::valid_nucleotide}
-,   sequence_type type = sequence_type::nucleotide
+,   bool nucleotide = false
 )
 {   typedef typename std::iterator_traits<Iterator>::value_type value_type;
     typedef typename std::iterator_traits<Iterator>::difference_type difference_type;
 
-    const auto& table = (type == sequence_type::nucleotide) 
-    ?   lut::valid_nucleotide 
-    :   lut::valid_peptide;
+    const auto& table = nucleotide ? lut::valid_nucleotide : lut::valid_peptide;
 
     difference_type n = last - first;
     difference_type sum = 0;
@@ -245,7 +232,7 @@ inline bool valid
             sum += table[static_cast<uint8_t>(first[i])];
     }
     else
-        return valid(first, last, type);
+        return valid(first, last, nucleotide);
 
     return sum == 0;
 }
@@ -253,14 +240,15 @@ inline bool valid
 /// @brief Check if all characters in a sequence range are valid.
 /// @tparam Range Range type with begin() and end() methods
 /// @param seq The sequence range to validate
-/// @param type Type of sequence to validate (nucleotide or peptide)
+/// @param nucleotide Type of sequence to validate (true for nucleotide,
+/// false for peptide/nucleotide)
 /// @return true if all characters are valid, false otherwise
 template<std::ranges::input_range Range>
 constexpr bool valid
 (   const Range& seq
-,   sequence_type type = sequence_type::nucleotide
+,   bool nucleotide = false
 )
-{   return valid(std::begin(seq), std::end(seq), type);
+{   return valid(std::begin(seq), std::end(seq), nucleotide);
 }
 
 /// @brief Check if all characters in a sequence container are valid using an execution policy.
@@ -268,19 +256,20 @@ constexpr bool valid
 /// @tparam Range Range type with begin() and end() methods
 /// @param policy Execution policy controlling algorithm execution
 /// @param seq The sequence range to validate
-/// @param type Type of sequence to validate (nucleotide or peptide)
+/// @param nucleotide Type of sequence to validate (true for nucleotide,
+/// false for peptide/nucleotide)
 /// @return true if all characters are valid, false otherwise
 template<typename ExecPolicy, std::ranges::input_range Range>
 inline bool valid
 (   ExecPolicy&& policy
 ,   const Range& seq
-,   sequence_type type = sequence_type::nucleotide
+,   bool nucleotide = false
 )
 {   return valid
     (    std::forward<ExecPolicy>(policy)
     ,    std::begin(seq)
     ,    std::end(seq)
-    ,    type
+    ,    nucleotide
     );
 }
 
@@ -291,7 +280,7 @@ inline bool valid
 /// @return true if all characters are valid nucleotides, false otherwise
 template<typename Iterator>
 constexpr bool valid_nucleotide(Iterator first, Iterator last)
-{   return valid(first, last, sequence_type::nucleotide);
+{   return valid(first, last, true);
 }
 
 /// @brief Check if all characters in a sequence are valid nucleotides using an execution policy.
@@ -311,7 +300,7 @@ inline bool valid_nucleotide
     (   std::forward<ExecPolicy>(policy)
     ,   first
     ,   last
-    ,   sequence_type::nucleotide
+    ,   true
     );
 }
 
@@ -321,7 +310,7 @@ inline bool valid_nucleotide
 /// @return true if all characters are valid nucleotides, false otherwise
 template<std::ranges::input_range Container>
 constexpr bool valid_nucleotide(const Container& seq)
-{   return valid(seq, sequence_type::nucleotide);
+{   return valid(seq, true);
 }
 
 /// @brief Check if all characters in a sequence container are valid nucleotides using an execution policy.
@@ -339,7 +328,7 @@ inline bool valid_nucleotide
     (   std::forward<ExecPolicy>(policy)
     ,   std::begin(seq)
     ,   std::end(seq)
-    ,   sequence_type::nucleotide
+    ,   true
     );
 }
 
@@ -347,10 +336,10 @@ inline bool valid_nucleotide
 /// @tparam Iterator Forward iterator type
 /// @param first Iterator to the beginning of the sequence
 /// @param last Iterator to the end of the sequence
-/// @return true if all characters are valid peptides, false otherwise
+/// @return true if all characters are valid amino acids/nucleotides, false otherwise
 template<typename Iterator>
 constexpr bool valid_peptide(Iterator first, Iterator last)
-{   return valid(first, last, sequence_type::peptide);
+{   return valid(first, last, false);
 }
 
 /// @brief Check if all characters in a sequence are valid peptides using an execution policy.
@@ -359,7 +348,7 @@ constexpr bool valid_peptide(Iterator first, Iterator last)
 /// @param policy Execution policy controlling algorithm execution
 /// @param first Iterator to the beginning of the sequence
 /// @param last Iterator to the end of the sequence
-/// @return true if all characters are valid peptides, false otherwise
+/// @return true if all characters are valid amino acids/nucleotides, false otherwise
 template<typename ExecPolicy, typename Iterator>
 inline bool valid_peptide
 (   ExecPolicy&& policy
@@ -370,17 +359,17 @@ inline bool valid_peptide
     (   std::forward<ExecPolicy>(policy)
     ,   first
     ,   last
-    ,   sequence_type::peptide
+    ,   false
     );
 }
 
 /// @brief Check if all characters in a sequence container are valid peptides (amino acids).
 /// @tparam Container Container type with begin() and end() methods
 /// @param seq The sequence container to validate
-/// @return true if all characters are valid peptides, false otherwise
+/// @return true if all characters are valid amino acids/nucleotides, false otherwise
 template<std::ranges::input_range Container>
 constexpr bool valid_peptide(const Container& seq)
-{   return valid(seq, sequence_type::peptide);
+{   return valid(seq, false);
 }
 
 /// @brief Check if all characters in a sequence container are valid peptides using an execution policy.
@@ -388,7 +377,7 @@ constexpr bool valid_peptide(const Container& seq)
 /// @tparam Container Container type with begin() and end() methods
 /// @param policy Execution policy controlling algorithm execution
 /// @param seq The sequence container to validate
-/// @return true if all characters are valid peptides, false otherwise
+/// @return true if all characters are valid amino acids/nucleotides, false otherwise
 template<typename ExecPolicy, std::ranges::input_range Container>
 inline bool valid_peptide
 (   ExecPolicy&& policy
@@ -398,7 +387,7 @@ inline bool valid_peptide
     (   std::forward<ExecPolicy>(policy)
     ,   std::begin(seq)
     ,   std::end(seq)
-    ,   sequence_type::peptide
+    ,   false
     );
 }
 

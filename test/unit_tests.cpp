@@ -518,7 +518,7 @@ TEMPLATE_TEST_CASE( "gynx::valid", "[algorithm][valid]", std::vector<char>)
 
     SECTION( "valid nucleotide sequences" )
     {   gynx::sq_gen<T> s1{"ACGT"};
-        CHECK(gynx::valid(s1, gynx::sequence_type::nucleotide));
+        CHECK(gynx::valid(s1, true));
         CHECK(gynx::valid_nucleotide(s1));
         gynx::sq_gen<T> s2{"ACGTACGTNNN"};
         CHECK(gynx::valid_nucleotide(s2));
@@ -564,7 +564,8 @@ TEMPLATE_TEST_CASE( "gynx::valid", "[algorithm][valid]", std::vector<char>)
 
     SECTION( "valid peptide sequences" )
     {   gynx::sq_gen<T> s1{"ACDEFGHIKLMNPQRSTVWY"};
-        CHECK(gynx::valid(s1, gynx::sequence_type::peptide));
+        CHECK(gynx::valid(s1));
+        CHECK(gynx::valid(s1, false));
         CHECK(gynx::valid_peptide(s1));
         CHECK_FALSE(gynx::valid_nucleotide(s1));
         // lowercase
@@ -609,7 +610,7 @@ TEMPLATE_TEST_CASE( "gynx::valid", "[algorithm][valid]", std::vector<char>)
     SECTION( "validation with iterators" )
     {   gynx::sq_gen<T> s{"ACGTACGT"};
         // full range
-        CHECK(gynx::valid(s.begin(), s.end(), gynx::sequence_type::nucleotide));
+        CHECK(gynx::valid(s.begin(), s.end(), true));
         CHECK(gynx::valid_nucleotide(s.begin(), s.end()));
         // partial range
         CHECK(gynx::valid_nucleotide(s.begin(), s.begin() + 4));
