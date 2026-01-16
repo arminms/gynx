@@ -29,7 +29,7 @@
 #if defined(__CUDACC__)
 TEMPLATE_TEST_CASE( "gynx::sq", "[class][cuda]", std::vector<char>, thrust::host_vector<char>, thrust::device_vector<char>, thrust::universal_vector<char>)
 #elif defined(__HIPCC__)
-TEMPLATE_TEST_CASE( "gynx::sq", "[class][rocm]", std::vector<char>, thrust::host_vector<char>, thrust::device_vector<char>, thrust::universal_vector<char>)
+TEMPLATE_TEST_CASE( "gynx::sq", "[class][rocm]", std::vector<char>, thrust::host_vector<char>, thrust::device_vector<char>, thrust::universal_vector<char>, gynx::unified_vector<char>)
 #else
 TEMPLATE_TEST_CASE( "gynx::sq", "[class]", std::vector<char>)
 #endif
@@ -72,6 +72,7 @@ TEMPLATE_TEST_CASE( "gynx::sq", "[class]", std::vector<char>)
         if constexpr
         (   !std::is_same_v<T, thrust::device_vector<char>>
         &&  !std::is_same_v<T, thrust::universal_vector<char>>
+        &&  !std::is_same_v<T, gynx::unified_vector<char>>
         )
         {   gynx::sq_gen<T> a4(4);
             CHECK(a4 == "AAAA");
@@ -149,7 +150,7 @@ TEMPLATE_TEST_CASE( "gynx::sq", "[class]", std::vector<char>)
 #if defined(__CUDACC__) || defined(__HIPCC__) // not supported for thrust::device_vector
         if constexpr
         (   !std::is_same_v<T, thrust::device_vector<char>>
-        // &&  !std::is_same_v<T, thrust::universal_vector<char>>
+        &&  !std::is_same_v<T, gynx::unified_vector<char>>
         )
         {   for (auto& a : t)
                 a = 'T';
@@ -431,7 +432,7 @@ TEMPLATE_TEST_CASE( "gynx::sq_view", "[view]", std::vector<char>)
 #if defined(__CUDACC__)
 TEMPLATE_TEST_CASE( "gynx::io::fastaqz", "[io][in][out][cuda]", std::vector<char>, thrust::host_vector<char>, thrust::device_vector<char>, thrust::universal_vector<char>)
 #elif defined(__HIPCC__)
-TEMPLATE_TEST_CASE( "gynx::io::fastaqz", "[io][in][out][rocm]", std::vector<char>, thrust::host_vector<char>, thrust::device_vector<char>, thrust::universal_vector<char>)
+TEMPLATE_TEST_CASE( "gynx::io::fastaqz", "[io][in][out][rocm]", std::vector<char>, thrust::host_vector<char>, thrust::device_vector<char>, thrust::universal_vector<char>, gynx::unified_vector<char>)
 #else
 TEMPLATE_TEST_CASE( "gynx::io::fastaqz", "[io][in][out]", std::vector<char>)
 #endif
@@ -508,7 +509,7 @@ TEMPLATE_TEST_CASE( "gynx::io::fastaqz", "[io][in][out]", std::vector<char>)
 #if defined(__CUDACC__)
 TEMPLATE_TEST_CASE( "gynx::valid", "[algorithm][valid][cuda]", std::vector<char>, thrust::host_vector<char>, thrust::universal_vector<char>)
 #elif defined(__HIPCC__)
-TEMPLATE_TEST_CASE( "gynx::valid", "[algorithm][valid][rocm]", std::vector<char>, thrust::host_vector<char>, thrust::universal_vector<char>)
+TEMPLATE_TEST_CASE( "gynx::valid", "[algorithm][valid][rocm]", std::vector<char>, thrust::host_vector<char>, thrust::universal_vector<char>, gynx::unified_vector<char>)
 #else
 TEMPLATE_TEST_CASE( "gynx::valid", "[algorithm][valid]", std::vector<char>)
 #endif //__CUDACC__
@@ -715,7 +716,7 @@ TEMPLATE_TEST_CASE( "gynx::valid::device", "[algorithm][valid][cuda]", thrust::d
 #endif //__CUDACC__
 
 #if defined(__HIPCC__)
-TEMPLATE_TEST_CASE( "gynx::valid::device", "[algorithm][valid][rocm]", thrust::device_vector<char>, thrust::universal_vector<char>)
+TEMPLATE_TEST_CASE( "gynx::valid::device", "[algorithm][valid][rocm]", thrust::device_vector<char>, thrust::universal_vector<char>, gynx::unified_vector<char>)
 {   typedef TestType T;
 
     gynx::sq_gen<T> s;

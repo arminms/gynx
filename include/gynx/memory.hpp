@@ -34,10 +34,38 @@
     #include <thrust/system/cpp/memory.h>
 #elif defined(__HIPCC__)
     #include <thrust/universal_vector.h>
+    #include <thrust/device_vector.h>
+    #include <thrust/device_malloc_allocator.h>
+    #include <hip/hip_runtime.h>
 #endif
 
 namespace gynx
 {
+
+#if defined(__HIPCC__)
+    // custom allocator for unified memory on ROCm platform
+    template<class T>
+    struct ManagedAllocator : thrust::device_malloc_allocator<T>
+    {   typedef thrust::device_ptr<T> pointer;
+
+        inline pointer allocate(size_t n)
+        {   T* value = 0;
+            // hipMallocManaged creates a unified buffer accessible by CPU & GPU
+            hipError_t err = hipMallocManaged(&value, n * sizeof(T));
+            if (err != hipSuccess) throw thrust::system_error(err, thrust::hip_category());
+            return pointer(value);
+        }
+
+        inline void deallocate(pointer ptr, size_t n)
+        {   hipError_t err = hipFree(ptr.get());
+            if (err != hipSuccess) throw thrust::system_error(err, thrust::hip_category());
+        }
+    };
+
+// Define a unified vector type
+template<class T>
+    using unified_vector = thrust::device_vector<T, ManagedAllocator<T>>;
+#endif
 
 #if defined(__CUDACC__)
     template <typename T>

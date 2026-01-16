@@ -425,6 +425,11 @@ public:
         )
         {   os.write(thrust::raw_pointer_cast(_sq.data()), _sq.size());
         }
+        else if constexpr
+        (   std::is_same_v<Container, gynx::unified_vector<value_type>>
+        )
+        {   os.write(thrust::raw_pointer_cast(_sq.data()), _sq.size());
+        }
         else
 #endif  //__CUDACC__
             os.write(_sq.data(), _sq.size());
@@ -457,6 +462,11 @@ public:
         }
         else if constexpr
         (   std::is_same_v<Container, thrust::universal_vector<value_type>>
+        )
+        {   is.read(thrust::raw_pointer_cast(_sq.data()), n);
+        }
+        else if constexpr
+        (   std::is_same_v<Container, gynx::unified_vector<value_type>>
         )
         {   is.read(thrust::raw_pointer_cast(_sq.data()), n);
         }
