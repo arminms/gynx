@@ -159,7 +159,7 @@ public:
     /// Copy assignment operator.
     sq_gen& operator= (const sq_gen& other)
     {   _sq = other._sq;
-        _ptr_td = other._ptr_td;
+        _ptr_td = other._ptr_td ? std::make_unique<Map>(*other._ptr_td) : nullptr;
         return *this;
     }
     ///
@@ -435,18 +435,19 @@ public:
         else
 #endif  //__CUDACC__
             os.write(_sq.data(), _sq.size());
-        for (const auto& [tag, data] : *_ptr_td)
-        {   os << std::quoted(tag, '#');
-            if
-            (   const auto it = td_print_visitor.find(std::type_index(data.type()))
-            ;    it != td_print_visitor.cend()
-            )
-                it->second(os, data);
-            else
-                os << std::quoted("UNREGISTERED TYPE", '|')
-                //    << std::quoted(data.type().name())
-                   << "{}";
-        }
+        if (_ptr_td)
+            for (const auto& [tag, data] : *_ptr_td)
+            {   os << std::quoted(tag, '#');
+                if
+                (   const auto it = td_print_visitor.find(std::type_index(data.type()))
+                ;    it != td_print_visitor.cend()
+                )
+                    it->second(os, data);
+                else
+                    os << std::quoted("UNREGISTERED TYPE", '|')
+                    //    << std::quoted(data.type().name())
+                    << "{}";
+            }
     }
     ///
     /// Scans the sequence and its tagged data from the input stream @a is.
