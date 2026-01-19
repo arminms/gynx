@@ -72,7 +72,9 @@ TEMPLATE_TEST_CASE( "gynx::sq", "[class]", std::vector<char>)
         if constexpr
         (   !std::is_same_v<T, thrust::device_vector<char>>
         &&  !std::is_same_v<T, thrust::universal_vector<char>>
+#if defined(__HIPCC__)
         &&  !std::is_same_v<T, gynx::unified_vector<char>>
+#endif //__HIPCC__
         )
         {   gynx::sq_gen<T> a4(4);
             CHECK(a4 == "AAAA");
@@ -150,7 +152,9 @@ TEMPLATE_TEST_CASE( "gynx::sq", "[class]", std::vector<char>)
 #if defined(__CUDACC__) || defined(__HIPCC__) // not supported for thrust::device_vector
         if constexpr
         (   !std::is_same_v<T, thrust::device_vector<char>>
+#if defined(__HIPCC__)
         &&  !std::is_same_v<T, gynx::unified_vector<char>>
+#endif //__HIPCC__
         )
         {   for (auto& a : t)
                 a = 'T';

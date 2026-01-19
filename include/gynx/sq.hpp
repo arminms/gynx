@@ -425,11 +425,13 @@ public:
         )
         {   os.write(thrust::raw_pointer_cast(_sq.data()), _sq.size());
         }
+#if defined(__HIPCC__)
         else if constexpr
         (   std::is_same_v<Container, gynx::unified_vector<value_type>>
         )
         {   os.write(thrust::raw_pointer_cast(_sq.data()), _sq.size());
         }
+#endif //__HIPCC__
         else
 #endif  //__CUDACC__
             os.write(_sq.data(), _sq.size());
@@ -465,11 +467,13 @@ public:
         )
         {   is.read(thrust::raw_pointer_cast(_sq.data()), n);
         }
+#if defined(__HIPCC__)
         else if constexpr
         (   std::is_same_v<Container, gynx::unified_vector<value_type>>
         )
         {   is.read(thrust::raw_pointer_cast(_sq.data()), n);
         }
+#endif //__HIPCC__
         else
 #endif  //__CUDACC__
             is.read(_sq.data(), n);
