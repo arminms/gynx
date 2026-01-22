@@ -96,6 +96,11 @@ public:
     /// @param count The number of residues in the sequence.
     /// @param value The residue value to initialize each position with.
 #if defined(__CUDACC__) || defined(__HIPCC__)
+    sq_gen(size_type count)
+    requires (std::is_same_v<Container, thrust::device_vector<value_type>>)
+    :   _sq(count)
+    ,   _ptr_td()
+    {}
     sq_gen(size_type count, const_reference value = value_type(65))
     requires (!std::is_same_v<Container, thrust::device_vector<value_type>>)
     :   _sq(count, value)

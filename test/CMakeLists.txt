@@ -39,7 +39,7 @@ if(hip_FOUND)
   set_source_files_properties(unit_tests.cpp PROPERTIES LANGUAGE HIP)
   target_compile_options(unit_tests PRIVATE
     -Wno-unused-result
-    $<$<COMPILE_LANGUAGE:HIP>:--offload-arch=gfx942>
+    $<$<COMPILE_LANGUAGE:HIP>:--offload-arch=gfx942:xnack+>
   )
 endif()
 

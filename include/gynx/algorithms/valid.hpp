@@ -95,7 +95,7 @@ __global__ void valid_kernel
 } // end kernel namespace
 
 template<typename ExecPolicy, device_resident_iterator Iterator>
-bool valid_device
+inline bool valid_device
 (   const ExecPolicy& policy
 ,   Iterator first
 ,   Iterator last

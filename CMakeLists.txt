@@ -31,7 +31,8 @@ endif()
 
 ## life is about choices...
 #
-option(GYNX_ENABLE_TESTS "Enable the unit tests with support for Jupyter?" ON)
+option(GYNX_ENABLE_TESTS "Enable the unit tests ?" ON)
+option(GYNX_ENABLE_BENCHMARKS "Enable benchmarks ?" ON)
 
 ## finally our project...
 #
@@ -64,6 +65,7 @@ check_language(CUDA 12)
 if(CMAKE_CUDA_COMPILER)
   enable_language(CUDA)
   find_package(CUDAToolkit)
+  set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
 ## check for ROCm support
@@ -77,6 +79,23 @@ endif()
 ## check for zlib
 #
 find_package(ZLIB REQUIRED)
+
+## check for ranx
+#
+find_package(ranx CONFIG COMPONENTS openmp
+  HINTS $ENV{HOME} $ENV{HOME}/.local /usr/local /opt/local /opt
+)
+if(NOT ranx_FOUND)
+  message(STATUS "Fetching ranx library...")
+  FetchContent_Declare(
+    ranx
+    GIT_REPOSITORY https://github.com/arminms/ranx.git
+    GIT_TAG main
+  )
+  # setting required ranx components
+  set(RANX_COMPONENTS openmp CACHE STRING "Required components")
+  FetchContent_MakeAvailable(ranx)
+endif()
 
 ## check for g3p
 #
@@ -99,7 +118,11 @@ endif()
 add_library(${PROJECT_NAME} INTERFACE)
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_20)
-target_link_libraries(${PROJECT_NAME} INTERFACE OpenMP::OpenMP_CXX ZLIB::ZLIB g3p::g3p)
+target_link_libraries(${PROJECT_NAME} INTERFACE
+  OpenMP::OpenMP_CXX
+  ZLIB::ZLIB
+  g3p::g3p
+)
 if(MSVC)
   target_compile_options(${PROJECT_NAME} INTERFACE /openmp:llvm -openmp:experimental)
 endif()
@@ -188,6 +211,34 @@ if (NOT_SUBPROJECT)
     endif()
     include(Catch)
     add_subdirectory(test)
+  endif()
+
+endif(NOT_SUBPROJECT)
+
+## include benchmarks only when gynx is not being used as a subproject
+#
+if (NOT_SUBPROJECT)
+
+  ## add benchmarks
+  #
+  if(${GYNX_ENABLE_BENCHMARKS})
+    find_package(benchmark
+      CONFIG
+      HINTS $ENV{HOME} /usr/local /opt/local /opt
+    )
+    if(NOT benchmark_FOUND)
+      message(STATUS "Fetching Google Benchmark library...")
+      FetchContent_Declare(
+        benchmark
+        GIT_REPOSITORY https://github.com/google/benchmark.git
+        GIT_TAG        v1.7.1
+      )
+      set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL
+        "Enable testing of the benchmark library."
+      )
+      FetchContent_MakeAvailable(benchmark)
+    endif()
+    add_subdirectory(perf)
   endif()
 
 endif(NOT_SUBPROJECT)

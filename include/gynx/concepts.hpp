@@ -55,6 +55,14 @@ concept has_map_type = requires
 {   typename T::map_type;
 };
 
+template<typename T>
+concept sequence_container
+=   has_container_type<T>
+&&  has_map_type<T>
+&&  has_value_type<T>
+&&  has_size_type<T>
+;
+
 #if defined(__CUDACC__) || defined(__HIPCC__)
 // helper alias to get the system tag of a container
 template <typename Container>

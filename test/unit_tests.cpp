@@ -25,6 +25,9 @@
 #include <gynx/sq_view.hpp>
 #include <gynx/io/fastaqz.hpp>
 #include <gynx/algorithms/valid.hpp>
+#include <gynx/algorithms/random.hpp>
+
+const uint64_t seed_pi{3141592654};
 
 #if defined(__CUDACC__)
 TEMPLATE_TEST_CASE( "gynx::sq", "[class][cuda]", std::vector<char>, thrust::host_vector<char>, thrust::device_vector<char>, thrust::universal_vector<char>)
@@ -745,3 +748,75 @@ TEMPLATE_TEST_CASE( "gynx::valid::device", "[algorithm][valid][rocm]", thrust::d
     }
 }
 #endif //__HIPCC__
+
+#if defined(__CUDACC__)
+TEMPLATE_TEST_CASE( "gynx::random", "[algorithm][random][cuda]", std::vector<char>, thrust::host_vector<char>)
+#elif defined(__HIPCC__)
+TEMPLATE_TEST_CASE( "gynx::random", "[algorithm][random][rocm]", std::vector<char>, thrust::host_vector<char>)
+#else
+TEMPLATE_TEST_CASE( "gynx::random", "[algorithm][random]", std::vector<char>)
+#endif //__CUDACC__ || __HIPCC__
+{   typedef TestType T;
+    gynx::sq_gen<T> s(20);
+    const auto N{10'000};
+
+    SECTION( "random nucleotide sequence" )
+    {   gynx::rand(s.begin(), 20, "ACGT", seed_pi);
+        CHECK(gynx::valid_nucleotide(s));
+        CHECK(s == "TTCGGCCGTCGTTAAACACG");
+        auto t = gynx::random::dna<decltype(s)>(20, seed_pi);
+        CHECK(s == t);
+    }
+
+    SECTION( "random sequence with execution policy" )
+    {   gynx::sq_gen<T> r(N);
+        auto t = gynx::random::dna<decltype(s)>(N, seed_pi);
+        CHECK(N == t.size());
+        gynx::rand(gynx::execution::seq, r.begin(), N, "ACGT", seed_pi);
+        CHECK(t == r);
+        gynx::rand(gynx::execution::unseq, r.begin(), N, "ACGT", seed_pi);
+        CHECK(t == r);
+        gynx::rand(gynx::execution::par, r.begin(), N, "ACGT", seed_pi);
+        CHECK(t == r);
+        gynx::rand(gynx::execution::par_unseq, r.begin(), N, "ACGT", seed_pi);
+        CHECK(t == r);
+    }
+
+    // SECTION( "random nucleotide sequence with weights" )
+    // {   gynx::rand(s.begin(), 20, "ACGT", {35, 15, 15, 35}, seed_pi);
+    //     CHECK(gynx::valid_nucleotide(s));
+    //     // CAPTURE(s);
+    //     CHECK(s == "TTCTTAAGTCTTTAAACACG");
+    //     auto t = gynx::random::dna<decltype(s)>(20, 30, seed_pi);
+    //     t[2] = 'C';
+    //     CHECK(s == t);
+    // }
+}
+
+#if defined(__CUDACC__)
+TEMPLATE_TEST_CASE( "gynx::random::device", "[algorithm][random][cuda]", thrust::device_vector<char>, thrust::universal_vector<char>)
+{   typedef TestType T;
+    gynx::sq_gen<T> s(20);
+    const auto N{10'000};
+
+    SECTION( "device vector" )
+    {   gynx::rand(thrust::cuda::par, s.begin(), 20, "ACGT", seed_pi);
+        CHECK(gynx::valid_nucleotide(thrust::cuda::par, s));
+        CHECK(s == "TTCGGCCGTCGTTAAACACG");
+        auto t = gynx::random::dna<decltype(s)>(20, seed_pi);
+        CHECK(s == t);
+    }
+
+    SECTION( "cuda stream" )
+    {   auto r = gynx::random::dna<decltype(s)>(N, seed_pi);
+        gynx::sq_gen<T> t(N);
+        cudaStream_t stream;
+        cudaStreamCreate(&stream);
+        gynx::rand(thrust::cuda::par.on(stream), t.begin(), N, "ACGT", seed_pi);
+        CHECK(gynx::valid_nucleotide(thrust::cuda::par.on(stream), t));
+        CHECK(r == t);
+        cudaStreamSynchronize(stream);
+        cudaStreamDestroy(stream);
+    }
+}
+#endif //__CUDACC__
