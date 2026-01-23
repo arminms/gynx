@@ -240,7 +240,7 @@ inline void rand
     if constexpr (std::is_same_v<std::decay_t<ExecPolicy>, gynx::execution::unsequenced_policy>)
     {
         #pragma omp simd
-        for (int i = 0; i < n; ++i)
+        for (Size i = 0; i < n; ++i)
             out[i] = static_cast<value_type>(alphabet[ndx()]);
     }
     else if constexpr (std::is_same_v<std::decay_t<ExecPolicy>, gynx::execution::parallel_policy>)
