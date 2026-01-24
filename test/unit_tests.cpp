@@ -794,7 +794,7 @@ TEMPLATE_TEST_CASE( "gynx::random", "[algorithm][random]", std::vector<char>)
 }
 
 #if defined(__CUDACC__)
-TEMPLATE_TEST_CASE( "gynx::random::device", "[algorithm][random][cuda]", thrust::device_vector<char>, thrust::universal_vector<char>)
+TEMPLATE_TEST_CASE( "gynx::random::device", "[algorithm][random][cuda]", thrust::device_vector<char>, thrust::universal_vector<char> )
 {   typedef TestType T;
     gynx::sq_gen<T> s(20);
     const auto N{10'000};
@@ -822,7 +822,7 @@ TEMPLATE_TEST_CASE( "gynx::random::device", "[algorithm][random][cuda]", thrust:
 #endif //__CUDACC__
 
 #if defined(__HIPCC__)
-TEMPLATE_TEST_CASE( "gynx::random::device", "[algorithm][random][rocm]", thrust::device_vector<char>, thrust::universal_vector<char>)
+TEMPLATE_TEST_CASE( "gynx::random::device", "[algorithm][random][rocm]", thrust::device_vector<char>, thrust::universal_vector<char>, gynx::unified_vector<char> )
 {   typedef TestType T;
     gynx::sq_gen<T> s(20);
     const auto N{10'000};
