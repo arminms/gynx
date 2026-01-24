@@ -105,7 +105,9 @@ public:
 #if defined(__CUDACC__) || defined(__HIPCC__)
     sq_gen(size_type count, const_reference value)
     requires (!std::is_same_v<Container, thrust::device_vector<value_type>>)
+#if defined(__HIPCC__)
     || (!std::is_same_v<Container, gynx::unified_vector<value_type>>)
+#endif //__HIPCC__
     :   _sq(count, value)
     ,   _ptr_td()
     {}
