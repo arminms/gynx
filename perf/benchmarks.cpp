@@ -366,14 +366,13 @@ BENCHMARK_TEMPLATE(valid_rocm, gynx::unified_vector<char>)
 template <typename T>
 void unified_physical_memory(benchmark::State& st)
 {   size_t n = size_t(st.range());
-    gynx::sq_gen<T> sr;
-    auto sw = gynx::random::dna<gynx::sq_gen<T>>(n);
-    sw.save(fasta_filename, gynx::out::fasta());
 
     for (auto _ : st)
-    {   sr.load(fasta_filename);
-        benchmark::ClobberMemory();
-        benchmark::DoNotOptimize(gynx::valid(gynx::execution::unseq, sr));
+    {   auto sw = gynx::random::dna<gynx::sq_gen<T>>(n);
+        sw.save(fasta_filename, gynx::out::fasta());
+        gynx::sq_gen<T> sr;
+        sr.load(fasta_filename);
+        benchmark::DoNotOptimize(gynx::valid(sr));
     }
     std::remove(fasta_filename.c_str());
 
@@ -391,11 +390,11 @@ BENCHMARK_TEMPLATE(unified_physical_memory, thrust::host_vector<char>)
 ->  RangeMultiplier(2)
 ->  Range(1<<28, 1<<29)
 ->  Unit(benchmark::kMillisecond);
-BENCHMARK_TEMPLATE(unified_physical_memory, thrust::universal_vector<char>)
+BENCHMARK_TEMPLATE(unified_physical_memory, thrust::device_vector<char>)
 ->  RangeMultiplier(2)
 ->  Range(1<<28, 1<<29)
 ->  Unit(benchmark::kMillisecond);
-BENCHMARK_TEMPLATE(unified_physical_memory, thrust::device_vector<char>)
+BENCHMARK_TEMPLATE(unified_physical_memory, thrust::universal_vector<char>)
 ->  RangeMultiplier(2)
 ->  Range(1<<28, 1<<29)
 ->  Unit(benchmark::kMillisecond);
