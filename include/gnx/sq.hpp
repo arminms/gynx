@@ -19,8 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef _GYNX_SQ_HPP_
-#define _GYNX_SQ_HPP_
+#ifndef _GNX_SQ_HPP_
+#define _GNX_SQ_HPP_
 
 #include <concepts>
 #include <sstream>
@@ -43,12 +43,12 @@
     #include <thrust/memory.h>
 #endif // __CUDACC__
 
-#include <gynx/sq_view.hpp>
-#include <gynx/visitor.hpp>
-#include <gynx/io/fastaqz.hpp>
-#include <gynx/memory.hpp>
+#include <gnx/sq_view.hpp>
+#include <gnx/visitor.hpp>
+#include <gnx/io/fastaqz.hpp>
+#include <gnx/memory.hpp>
 
-namespace gynx {
+namespace gnx {
 //
 /// @brief A generic sequence class template with tagged data support.
 /// @tparam Container The underlying container type to hold the sequence.
@@ -106,7 +106,7 @@ public:
     sq_gen(size_type count, const_reference value)
     requires (!std::is_same_v<Container, thrust::device_vector<value_type>>)
 #if defined(__HIPCC__)
-    || (!std::is_same_v<Container, gynx::unified_vector<value_type>>)
+    || (!std::is_same_v<Container, gnx::unified_vector<value_type>>)
 #endif //__HIPCC__
     :   _sq(count, value)
     ,   _ptr_td()
@@ -287,7 +287,7 @@ public:
 // -- subseq operator ----------------------------------------------------------
     ///
     /// Returns a subsequence starting at position @a pos with length @a count.
-    /// If @a count is gynx::sq::npos or exceeds the sequence length from
+    /// If @a count is gnx::sq::npos or exceeds the sequence length from
     /// @a pos, the subsequence extends to the end of the sequence.
 #if defined(__CUDACC__) || defined(__HIPCC__)
     sq_gen<Container> operator()
@@ -299,7 +299,7 @@ public:
     ||  std::is_same_v<Container, thrust::universal_vector<value_type>>
     )
     {   if (pos > _sq.size())
-            throw std::out_of_range("gynx::sq: pos > this->size()");
+            throw std::out_of_range("gnx::sq: pos > this->size()");
         return sq_gen
         (   _sq.begin() + pos
         ,   (count > _sq.size() - pos) ? _sq.end() : _sq.begin() + pos + count
@@ -345,7 +345,7 @@ public:
     /// @a tag. Throws std::out_of_range if the tag does not exist.
     const std::any& operator[] (const std::string& tag) const
     {   if (!_ptr_td || _ptr_td->find(tag) == _ptr_td->end())
-            throw std::out_of_range("gynx::sq: tag not found -> " + tag);
+            throw std::out_of_range("gnx::sq: tag not found -> " + tag);
         return _ptr_td->at(tag);
     }
 #if defined(__CUDACC__) || defined(__HIPCC__)
@@ -437,7 +437,7 @@ public:
         }
 #if defined(__HIPCC__)
         else if constexpr
-        (   std::is_same_v<Container, gynx::unified_vector<value_type>>
+        (   std::is_same_v<Container, gnx::unified_vector<value_type>>
         )
         {   os.write(thrust::raw_pointer_cast(_sq.data()), _sq.size());
         }
@@ -480,7 +480,7 @@ public:
         }
 #if defined(__HIPCC__)
         else if constexpr
-        (   std::is_same_v<Container, gynx::unified_vector<value_type>>
+        (   std::is_same_v<Container, gnx::unified_vector<value_type>>
         )
         {   is.read(thrust::raw_pointer_cast(_sq.data()), n);
         }
@@ -502,7 +502,7 @@ public:
                 it->second(is, a);
             else
                 throw std::runtime_error
-                (   "gynx::sq: unregistered type -> "
+                (   "gnx::sq: unregistered type -> "
                 +   type
                 );
             (*_ptr_td)[tag] = a;
@@ -566,11 +566,11 @@ public:
     /// A sequence of @a char
     using sq = sq_gen<std::vector<char>>;
 
-}   // end gynx namespace
+}   // end gnx namespace
 
 // -- string literal operator --------------------------------------------------
 
-    gynx::sq operator""_sq (const char* str, std::size_t len)
-    {   return gynx::sq(str);   }
+    gnx::sq operator""_sq (const char* str, std::size_t len)
+    {   return gnx::sq(str);   }
 
-#endif  //_GYNX_SQ_HPP_
+#endif  //_GNX_SQ_HPP_

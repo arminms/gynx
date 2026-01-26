@@ -19,8 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef _GYNX_MEMORY_HPP_
-#define _GYNX_MEMORY_HPP_
+#ifndef _GNX_MEMORY_HPP_
+#define _GNX_MEMORY_HPP_
 
 #include <cstdlib>
 #include <memory>
@@ -39,7 +39,7 @@
     #include <hip/hip_runtime.h>
 #endif
 
-namespace gynx
+namespace gnx
 {
 
 #if defined(__HIPCC__)
@@ -163,13 +163,13 @@ template<class T>
         "should be a fundamental type");
     public: 
         // constructor without initialization
-        // GYNX_DEVICE_CODE
+        // GNX_DEVICE_CODE
         no_init () noexcept {}
         // implicit conversion T → no_init<T>
-        // GYNX_DEVICE_CODE
+        // GNX_DEVICE_CODE
         constexpr  no_init (T value) noexcept: v_{value} {}
         // implicit conversion no_init<T> → T
-        // GYNX_DEVICE_CODE
+        // GNX_DEVICE_CODE
         constexpr  operator T () const noexcept { return v_; }
         private:
         T v_;
@@ -374,6 +374,6 @@ template<class T>
     {   return free(ptr);   }
 #endif // _WIN32
 
-}  // namespace gynx
+}  // namespace gnx
 
-#endif  //_GYNX_MEMORY_HPP_
+#endif  //_GNX_MEMORY_HPP_

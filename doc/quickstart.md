@@ -1,34 +1,34 @@
 ---
-title: Start using Gynx
-subject: Gynx Quickstart
+title: Start using Gnx
+subject: Gnx Quickstart
 short_title: Get Started
-description: Using Gynx in a nutshell.
+description: Using Gnx in a nutshell.
 kernelspec:
   name: xcpp20-openmp
   display_name: C++20-OpenMP
 ---
 
-# Start using Gynx
+# Start using Gnx
 
 ---
 
 ```{code-cell} cpp
-#pragma cling add_include_path("/home/armin/src/gynx/include")
+#pragma cling add_include_path("/home/armin/src/gnx/include")
 #pragma cling add_include_path("/home/armin/src/g3p/include")
 
 #include <fstream>
 
 #include <g3p/gnuplot>
-#include <gynx/sq.hpp>
-#include <gynx/sq_view.hpp>
-#include <gynx/io/fastaqz.hpp>
-#include <gynx/algorithms/valid.hpp>
+#include <gnx/sq.hpp>
+#include <gnx/sq_view.hpp>
+#include <gnx/io/fastaqz.hpp>
+#include <gnx/algorithms/valid.hpp>
 ```
 
-Making a biological sequence in Gynx is easy:
+Making a biological sequence in Gnx is easy:
 
 ```{code-cell} cpp
-gynx::sq s{"ACGT"};
+gnx::sq s{"ACGT"};
 ```
 Or even easier like this:
 ```{code-cell} cpp
@@ -41,13 +41,13 @@ It's also easy to load from compressed/uncompressed fasta/fastq files. First let
 ```
 +++
 ```{code-cell} cpp
-gynx::sq plasmid;
+gnx::sq plasmid;
 plasmid.load("GCF_000204255.1_ASM20425v1_genomic.fna.gz", "NC_017288.1");
 (7553 == std::size(plasmid))
 ```
 +++
 ```{code-cell} cpp
-gynx::sq plot = plasmid(0, 500);
+gnx::sq plot = plasmid(0, 500);
 // g3p::gnuplot gp("test.log");
 g3p::gnuplot gp;
 
@@ -86,8 +86,8 @@ gp << g3p::end << g3p::endl
 +++
 ```{code-cell} cpp
 auto plot = "AGCCAACCACCCCCG"_sq;
-auto gynx_x = "CCAATATTATC"_sq;
-auto gynx_y = "CCTATGTTACT"_sq;
+auto gnx_x = "CCAATATTATC"_sq;
+auto gnx_y = "CCTATGTTACT"_sq;
 
 gp
 ( "set size square" )
@@ -116,7 +116,7 @@ std::cout << plasmid;
 ```
 +++
 ```{code-cell} cpp
-gynx::sq s{"ACGT"};
+gnx::sq s{"ACGT"};
 s["test"] = 33;
 // std::cout << s;
 s
@@ -125,7 +125,7 @@ s
 ```{code-cell} cpp
 std::stringstream ss;
 ss << s;
-gynx::sq t;
+gnx::sq t;
 ss >> t;
 (s == t)
 ```
@@ -136,11 +136,11 @@ std::cout << t;
 ++
 ## Non-owning sequence views
 
-`gynx::sq_view` is a lightweight, non-owning view over a `gynx::sq` (or any compatible container), similar to `std::string_view`. It avoids copying while letting you slice and compare.
+`gnx::sq_view` is a lightweight, non-owning view over a `gnx::sq` (or any compatible container), similar to `std::string_view`. It avoids copying while letting you slice and compare.
 
 ```{code-cell} cpp
-gynx::sq s{"ACGT"};
-gynx::sq_view v{s};         // view over s, no copy
+gnx::sq s{"ACGT"};
+gnx::sq_view v{s};         // view over s, no copy
 
 // iteration
 for (auto it = v.begin(); it != v.end(); ++it) { /* use *it */ }
@@ -157,27 +157,27 @@ v.remove_suffix(1);          // now "CG"
 (v != s);                    // true, because s is "ACGT"
 ```
 
-Use `gynx::sq_view_gen<Container>` for custom containers whose `value_type` and layout match `sq_gen`’s expectations.
+Use `gnx::sq_view_gen<Container>` for custom containers whose `value_type` and layout match `sq_gen`’s expectations.
 +++
 ```{code-cell} cpp
 std::stringstream ss;
 ss << plasmid;
-gynx::sq p;
+gnx::sq p;
 ss >> p;
 (p == plasmid)
 ```
 +++
 ```{code-cell} cpp
-gynx::sq s{"ACGT"};
+gnx::sq s{"ACGT"};
 s["test"] = 33;
 s["test2"] = 1.33f; 
-std::ofstream os("test.gynx");
+std::ofstream os("test.gnx");
 os << s;
 os.close();
 ```
 +++
 ```{code-cell} cpp
-gynx::sq s{"ACGT"};
+gnx::sq s{"ACGT"};
 s["test"] = 33;
 s["test-void"] = {};
 s["test-bool"] = true;
@@ -189,38 +189,38 @@ std::cout << s;
 ```{code-cell} cpp
 std::stringstream ss;
 ss << s;
-gynx::sq t;
+gnx::sq t;
 ss >> t;
 std::cout << t;
 ```
 ### valid() algorithm
 +++
 ```{code-cell} cpp
-gynx::sq s;
-s.load("/home/armin/src/gynx/build/_deps/sample_genome-src/GCF_000204255.1_ASM20425v1_genomic.fna.gz");
+gnx::sq s;
+s.load("/home/armin/src/gnx/build/_deps/sample_genome-src/GCF_000204255.1_ASM20425v1_genomic.fna.gz");
 ```
 +++
 ```{code-cell} cpp
 %%timeit
-gynx::valid_nucleotide(s);
+gnx::valid_nucleotide(s);
 ```
 +++
 ```{code-cell} cpp
 %%timeit
-gynx::valid_nucleotide(gynx::execution::seq, s);
+gnx::valid_nucleotide(gnx::execution::seq, s);
 ```
 +++
 ```{code-cell} cpp
 %%timeit
-gynx::valid_nucleotide(gynx::execution::unseq, s);
+gnx::valid_nucleotide(gnx::execution::unseq, s);
 ```
 +++
 ```{code-cell} cpp
 %%timeit
-gynx::valid_nucleotide(gynx::execution::par, s);
+gnx::valid_nucleotide(gnx::execution::par, s);
 ```
 +++
 ```{code-cell} cpp
 %%timeit
-gynx::valid_nucleotide(gynx::execution::par_unseq, s);
+gnx::valid_nucleotide(gnx::execution::par_unseq, s);
 ```

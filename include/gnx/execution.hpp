@@ -19,12 +19,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef _GYNX_EXECUTION_HPP_
-#define _GYNX_EXECUTION_HPP_
+#ifndef _GNX_EXECUTION_HPP_
+#define _GNX_EXECUTION_HPP_
 
 #include <type_traits>
 
-namespace gynx::execution {
+namespace gnx::execution {
 
 /// @brief Execution policy for sequential execution (no parallelism)
 struct sequenced_policy
@@ -68,9 +68,9 @@ inline constexpr data_parallel_rocm_policy rocm;
 /// @brief Data-parallel oneAPI execution policy instance   
 inline constexpr data_parallel_oneapi_policy oneapi;
 
-} // namespace gynx::execution
+} // namespace gnx::execution
 
-namespace gynx {
+namespace gnx {
 
 /// @brief Type trait to check if a type is an execution policy
 template<typename T>
@@ -79,43 +79,43 @@ struct is_execution_policy
 {};
 /// @brief Specialization for sequenced_policy
 template<>
-struct is_execution_policy<gynx::execution::sequenced_policy>
+struct is_execution_policy<gnx::execution::sequenced_policy>
 :   std::true_type
 {};
 /// @brief Specialization for parallel_policy
 template<>
-struct is_execution_policy<gynx::execution::parallel_policy>
+struct is_execution_policy<gnx::execution::parallel_policy>
 :   std::true_type
 {};
 /// @brief Specialization for parallel_unsequenced_policy
 template<>
-struct is_execution_policy<gynx::execution::parallel_unsequenced_policy>
+struct is_execution_policy<gnx::execution::parallel_unsequenced_policy>
 :   std::true_type
 {};
 /// @brief Specialization for unsequenced_policy
 template<>
-struct is_execution_policy<gynx::execution::unsequenced_policy>
+struct is_execution_policy<gnx::execution::unsequenced_policy>
 :   std::true_type
 {};
 /// @brief Specialization for data_parallel_cuda_policy
 template<>
-struct is_execution_policy<gynx::execution::data_parallel_cuda_policy>
+struct is_execution_policy<gnx::execution::data_parallel_cuda_policy>
 :   std::true_type
 {};
 /// @brief Specialization for data_parallel_rocm_policy
 template<>
-struct is_execution_policy<gynx::execution::data_parallel_rocm_policy>
+struct is_execution_policy<gnx::execution::data_parallel_rocm_policy>
 :   std::true_type
 {};
 /// @brief Specialization for data_parallel_oneapi_policy
 template<>
-struct is_execution_policy<gynx::execution::data_parallel_oneapi_policy>
+struct is_execution_policy<gnx::execution::data_parallel_oneapi_policy>
 :   std::true_type
 {};
 /// @brief Helper variable template for is_execution_policy
 template<typename T>
 inline constexpr bool is_execution_policy_v = is_execution_policy<T>::value;
 
-} // namespace gynx
+} // namespace gnx
 
-#endif // _GYNX_EXECUTION_HPP_
+#endif // _GNX_EXECUTION_HPP_

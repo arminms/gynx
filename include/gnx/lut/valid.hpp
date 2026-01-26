@@ -19,13 +19,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef _GYNX_LUT_VALID_HPP_
-#define _GYNX_LUT_VALID_HPP_
+#ifndef _GNX_LUT_VALID_HPP_
+#define _GNX_LUT_VALID_HPP_
 
 #include <array>
 #include <cstdint>
 
-namespace gynx::lut {
+namespace gnx::lut {
 
 /// @brief Compile-time generated lookup table for valid nucleotide characters.
 /// Valid characters include: A, C, G, T, U, N (both uppercase and lowercase)
@@ -147,13 +147,13 @@ constexpr std::array<uint8_t, 256> create_valid_peptide_table()
 }
 
 /// @brief Instantiate the nucleotide validation table in static memory.
-/// Example: bool is_valid = gynx::lut::valid_nucleotide[static_cast<uint8_t>(ch)];
+/// Example: bool is_valid = gnx::lut::valid_nucleotide[static_cast<uint8_t>(ch)];
 inline constexpr auto valid_nucleotide = create_valid_nucleotide_table();
 
 /// @brief Instantiate the peptide validation table in static memory.
-/// Example: bool is_valid = gynx::lut::valid_peptide[static_cast<uint8_t>(ch)];
+/// Example: bool is_valid = gnx::lut::valid_peptide[static_cast<uint8_t>(ch)];
 inline constexpr auto valid_peptide = create_valid_peptide_table();
 
-} // namespace gynx::lut
+} // namespace gnx::lut
 
-#endif  // _GYNX_LUT_VALID_HPP_
+#endif  // _GNX_LUT_VALID_HPP_

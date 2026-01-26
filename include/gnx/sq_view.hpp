@@ -19,8 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef _GYNX_SQ_VIEW_HPP_
-#define _GYNX_SQ_VIEW_HPP_
+#ifndef _GNX_SQ_VIEW_HPP_
+#define _GNX_SQ_VIEW_HPP_
 
 #include <algorithm>
 #include <cstddef>
@@ -31,7 +31,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace gynx {
+namespace gnx {
 
 // forward declaration of sq_gen
 template<typename Container, typename Map>
@@ -108,7 +108,7 @@ public:
     }
     constexpr const_reference at(size_type pos) const
     {   if (pos >= _size)
-            throw std::out_of_range("gynx::sq_view: pos >= size()");
+            throw std::out_of_range("gnx::sq_view: pos >= size()");
         return _data[pos];
     }
     constexpr const_reference front() const
@@ -126,20 +126,20 @@ public:
 
     constexpr void remove_prefix(size_type n)
     {   if (n > _size)
-            throw std::out_of_range("gynx::sq_view: remove_prefix overflow");
+            throw std::out_of_range("gnx::sq_view: remove_prefix overflow");
         _data += n;
         _size -= n;
     }
     constexpr void remove_suffix(size_type n)
     {   if (n > _size)
-            throw std::out_of_range("gynx::sq_view: remove_suffix overflow");
+            throw std::out_of_range("gnx::sq_view: remove_suffix overflow");
         _size -= n;
     }
 
 // -- operations ---------------------------------------------------------------
     constexpr sq_view_gen substr(size_type pos, size_type count = npos) const
     {   if (pos > _size)
-            throw std::out_of_range("gynx::sq_view: pos > size()");
+            throw std::out_of_range("gnx::sq_view: pos > size()");
         const size_type rlen = std::min(count, static_cast<size_type>(_size - pos));
         return sq_view_gen(_data + pos, rlen);
     }
@@ -221,12 +221,12 @@ private:
 // -- aliases ------------------------------------------------------------------
     using sq_view = sq_view_gen<std::vector<char>>;
 
-}   // end gynx namespace
+}   // end gnx namespace
 
 // Enable std::ranges::view concept for sq_view_gen
 namespace std::ranges {
     template<typename Container>
-    inline constexpr bool enable_view<gynx::sq_view_gen<Container>> = true;
+    inline constexpr bool enable_view<gnx::sq_view_gen<Container>> = true;
 }
 
-#endif  // _GYNX_SQ_VIEW_HPP_
+#endif  // _GNX_SQ_VIEW_HPP_

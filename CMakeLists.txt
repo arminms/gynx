@@ -21,7 +21,7 @@
 #
 cmake_minimum_required(VERSION 3.25.2...3.31)
 
-## detect if gynx is being bundled, disable unit tests in that case
+## detect if gnx is being bundled, disable unit tests in that case
 #
 if(NOT DEFINED PROJECT_NAME)
   set(NOT_SUBPROJECT ON)
@@ -31,13 +31,13 @@ endif()
 
 ## life is about choices...
 #
-option(GYNX_ENABLE_TESTS "Enable the unit tests ?" ON)
-option(GYNX_ENABLE_BENCHMARKS "Enable benchmarks ?" ON)
+option(GNX_ENABLE_TESTS "Enable the unit tests ?" ON)
+option(GNX_ENABLE_BENCHMARKS "Enable benchmarks ?" ON)
 
 ## finally our project...
 #
 project(
-  gynx
+  gnx
   VERSION 0.1.0
   LANGUAGES CXX
   DESCRIPTION "Biological sequences for Modern C++"
@@ -114,7 +114,7 @@ if(NOT g3p_FOUND)
     FetchContent_MakeAvailable(g3p)
 endif()
 
-## defining gynx target
+## defining gnx target
 #
 add_library(${PROJECT_NAME} INTERFACE)
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
@@ -132,8 +132,8 @@ target_include_directories(${PROJECT_NAME} INTERFACE
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 set_target_properties(${PROJECT_NAME} PROPERTIES
-  VERSION ${gynx_VERSION}
-  SOVERSION ${gynx_VERSION_MAJOR}
+  VERSION ${gnx_VERSION}
+  SOVERSION ${gnx_VERSION_MAJOR}
 )
 
 ## specifying the export name for the targets
@@ -143,11 +143,11 @@ install(
   EXPORT ${PROJECT_NAME}-targets
 )
 
-## installing gynx header files
+## installing gnx header files
 #
 add_subdirectory(include)
 
-## installing gynx export target file
+## installing gnx export target file
 #
 install(
   EXPORT ${PROJECT_NAME}-targets
@@ -169,11 +169,11 @@ configure_package_config_file(
 #
 write_basic_package_version_file(
   "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
-  VERSION "${gynx_VERSION_MAJOR}.${gynx_VERSION_MINOR}"
+  VERSION "${gnx_VERSION_MAJOR}.${gnx_VERSION_MINOR}"
   COMPATIBILITY AnyNewerVersion
 )
 
-## installing gynx export config files
+## installing gnx export config files
 #
 install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
@@ -188,13 +188,13 @@ export(EXPORT ${PROJECT_NAME}-targets
   NAMESPACE ${PROJECT_NAME}::
 )
 
-## include unit tests only when gynx is not being used as a subproject
+## include unit tests only when gnx is not being used as a subproject
 #
 if (NOT_SUBPROJECT)
 
   ## add unit tests
   #
-  if(${GYNX_ENABLE_TESTS})
+  if(${GNX_ENABLE_TESTS})
     enable_testing()
     find_package(
       Catch2 3
@@ -216,13 +216,13 @@ if (NOT_SUBPROJECT)
 
 endif(NOT_SUBPROJECT)
 
-## include benchmarks only when gynx is not being used as a subproject
+## include benchmarks only when gnx is not being used as a subproject
 #
 if (NOT_SUBPROJECT)
 
   ## add benchmarks
   #
-  if(${GYNX_ENABLE_BENCHMARKS})
+  if(${GNX_ENABLE_BENCHMARKS})
     find_package(benchmark
       CONFIG
       HINTS $ENV{HOME} /usr/local /opt/local /opt

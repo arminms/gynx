@@ -19,8 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef _GYNX_CONCEPTS_HPP_
-#define _GYNX_CONCEPTS_HPP_
+#ifndef _GNX_CONCEPTS_HPP_
+#define _GNX_CONCEPTS_HPP_
 
 #include <type_traits>
 #include <concepts>
@@ -33,7 +33,7 @@
 #include <thrust/iterator/iterator_traits.h>
 #endif // __CUDACC__
 
-namespace gynx {
+namespace gnx {
 
 template<typename T>
 concept has_value_type = requires
@@ -100,6 +100,6 @@ concept has_stream_member = requires(T a)
 };
 #endif // __CUDACC__
 
-} // namespace gynx
+} // namespace gnx
 
-#endif // _GYNX_CONCEPTS_HPP_
+#endif // _GNX_CONCEPTS_HPP_

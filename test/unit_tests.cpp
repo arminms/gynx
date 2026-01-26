@@ -21,24 +21,24 @@
 //
 #include <catch2/catch_all.hpp>
 
-#include <gynx/sq.hpp>
-#include <gynx/sq_view.hpp>
-#include <gynx/io/fastaqz.hpp>
-#include <gynx/algorithms/valid.hpp>
-#include <gynx/algorithms/random.hpp>
+#include <gnx/sq.hpp>
+#include <gnx/sq_view.hpp>
+#include <gnx/io/fastaqz.hpp>
+#include <gnx/algorithms/valid.hpp>
+#include <gnx/algorithms/random.hpp>
 
 const uint64_t seed_pi{3141592654};
 
 #if defined(__CUDACC__)
-TEMPLATE_TEST_CASE( "gynx::sq", "[class][cuda]", std::vector<char>, thrust::host_vector<char>, thrust::device_vector<char>, thrust::universal_vector<char>)
+TEMPLATE_TEST_CASE( "gnx::sq", "[class][cuda]", std::vector<char>, thrust::host_vector<char>, thrust::device_vector<char>, thrust::universal_vector<char>)
 #elif defined(__HIPCC__)
-TEMPLATE_TEST_CASE( "gynx::sq", "[class][rocm]", std::vector<char>, thrust::host_vector<char>, thrust::device_vector<char>, thrust::universal_vector<char>, gynx::unified_vector<char>)
+TEMPLATE_TEST_CASE( "gnx::sq", "[class][rocm]", std::vector<char>, thrust::host_vector<char>, thrust::device_vector<char>, thrust::universal_vector<char>, gnx::unified_vector<char>)
 #else
-TEMPLATE_TEST_CASE( "gynx::sq", "[class]", std::vector<char>)
+TEMPLATE_TEST_CASE( "gnx::sq", "[class]", std::vector<char>)
 #endif
 {   typedef TestType T;
 
-    gynx::sq_gen<T> s{"ACGT"};
+    gnx::sq_gen<T> s{"ACGT"};
     std::string t{"ACGT"}, u{"acgt"}, v{"ACGT "};
     s["test-int"] = -33;
 
@@ -47,10 +47,10 @@ TEMPLATE_TEST_CASE( "gynx::sq", "[class]", std::vector<char>)
 // -- comparison operators -----------------------------------------------------
 
     SECTION( "comparison operators" )
-    {   REQUIRE(  s == gynx::sq_gen<T>("ACGT"));
-        REQUIRE(!(s == gynx::sq_gen<T>("acgt")));
-        REQUIRE(  s != gynx::sq_gen<T>("acgt") );
-        REQUIRE(!(s != gynx::sq_gen<T>("ACGT")));
+    {   REQUIRE(  s == gnx::sq_gen<T>("ACGT"));
+        REQUIRE(!(s == gnx::sq_gen<T>("acgt")));
+        REQUIRE(  s != gnx::sq_gen<T>("acgt") );
+        REQUIRE(!(s != gnx::sq_gen<T>("ACGT")));
 
         REQUIRE(s == t);
         REQUIRE(t == s);
@@ -76,23 +76,23 @@ TEMPLATE_TEST_CASE( "gynx::sq", "[class]", std::vector<char>)
         (   !std::is_same_v<T, thrust::device_vector<char>>
         &&  !std::is_same_v<T, thrust::universal_vector<char>>
 #if defined(__HIPCC__)
-        &&  !std::is_same_v<T, gynx::unified_vector<char>>
+        &&  !std::is_same_v<T, gnx::unified_vector<char>>
 #endif //__HIPCC__
         )
-        {   gynx::sq_gen<T> a4(4, 'A');
+        {   gnx::sq_gen<T> a4(4, 'A');
             CHECK(a4 == "AAAA");
-            gynx::sq_gen<T> c4(4, 'C');
+            gnx::sq_gen<T> c4(4, 'C');
             CHECK(c4 == "CCCC");
         }
 #else
-        gynx::sq_gen<T> a4(4, 'A');
+        gnx::sq_gen<T> a4(4, 'A');
         CHECK(a4 == "AAAA");
-        gynx::sq_gen<T> c4(4, 'C');
+        gnx::sq_gen<T> c4(4, 'C');
         CHECK(c4 == "CCCC");
 #endif //__CUDACC__
     }
     SECTION( "string_view constructor" )
-    {   gynx::sq_gen<T> c("ACGT");
+    {   gnx::sq_gen<T> c("ACGT");
         CHECK(s == c);
     }
     SECTION( "sq_view constructor" )
@@ -101,72 +101,72 @@ TEMPLATE_TEST_CASE( "gynx::sq", "[class]", std::vector<char>)
         if constexpr
         (   !std::is_same_v<T, thrust::device_vector<char>>
         )
-        {   gynx::sq_view_gen<T> sv(s);
+        {   gnx::sq_view_gen<T> sv(s);
             CHECK(s == sv);
         }
 #else
-        gynx::sq_view_gen<T> sv(s);
+        gnx::sq_view_gen<T> sv(s);
         CHECK(s == sv);
 #endif //__CUDACC__
     }
     SECTION( "iterator constructor" )
     {   std::string acgt{"ACGT"};
-        gynx::sq_gen<T> c(std::begin(acgt), std::end(acgt));
+        gnx::sq_gen<T> c(std::begin(acgt), std::end(acgt));
         CHECK(s == c);
     }
     SECTION( "copy constructor" )
-    {   gynx::sq_gen<T> c(s);
+    {   gnx::sq_gen<T> c(s);
         CHECK(c == s);
         CHECK(-33 == std::any_cast<int>(c["test-int"]));
     }
     SECTION( "move constructor" )
-    {   gynx::sq_gen<T> m(std::move(s));
+    {   gnx::sq_gen<T> m(std::move(s));
         CHECK(s.empty());
-        CHECK(m == gynx::sq_gen<T>("ACGT"));
+        CHECK(m == gnx::sq_gen<T>("ACGT"));
         CHECK(-33 == std::any_cast<int>(m["test-int"]));
     }
     SECTION( "initializer list" )
-    {   gynx::sq_gen<T> c{'A', 'C', 'G', 'T'};
+    {   gnx::sq_gen<T> c{'A', 'C', 'G', 'T'};
         CHECK(c == s);
     }
 
 // -- copy assignment operators ------------------------------------------------
 
     SECTION( "copy assignment operator" )
-    {   gynx::sq_gen<T> c = s;
+    {   gnx::sq_gen<T> c = s;
         CHECK(c == s);
         CHECK(-33 == std::any_cast<int>(c["test-int"]));
     }
     SECTION( "move constructor" )
-    {   gynx::sq_gen<T> m = gynx::sq_gen<T>("ACGT");
+    {   gnx::sq_gen<T> m = gnx::sq_gen<T>("ACGT");
         CHECK(m == s);
     }
     SECTION( "initializer list" )
-    {   gynx::sq_gen<T> c = {'A', 'C', 'G', 'T'};
+    {   gnx::sq_gen<T> c = {'A', 'C', 'G', 'T'};
         CHECK(c == s);
     }
 
 // -- iterators ----------------------------------------------------------------
 
     SECTION( "begin/end" )
-    {   gynx::sq_gen<T> t("AAAA");
+    {   gnx::sq_gen<T> t("AAAA");
         for (auto a : t)
             CHECK(a == 'A');
 #if defined(__CUDACC__) || defined(__HIPCC__) // not supported for thrust::device_vector
         if constexpr
         (   !std::is_same_v<T, thrust::device_vector<char>>
 #if defined(__HIPCC__)
-        &&  !std::is_same_v<T, gynx::unified_vector<char>>
+        &&  !std::is_same_v<T, gnx::unified_vector<char>>
 #endif //__HIPCC__
         )
         {   for (auto& a : t)
                 a = 'T';
-            CHECK(t == gynx::sq_gen<T>("TTTT"));
+            CHECK(t == gnx::sq_gen<T>("TTTT"));
         }
 #else
         for (auto& a : t)
             a = 'T';
-        CHECK(t == gynx::sq_gen<T>("TTTT"));
+        CHECK(t == gnx::sq_gen<T>("TTTT"));
 #endif //__CUDACC__
         auto s_it = s.cbegin();
         for
@@ -178,7 +178,7 @@ TEMPLATE_TEST_CASE( "gynx::sq", "[class]", std::vector<char>)
         CHECK(t == "ACGT");
     }
     SECTION( "cbegin/cend" )
-    {   const gynx::sq_gen<T> t("AAAA");
+    {   const gnx::sq_gen<T> t("AAAA");
         auto s_it = s.begin();
         for
         (   auto t_it = t.cbegin()
@@ -189,7 +189,7 @@ TEMPLATE_TEST_CASE( "gynx::sq", "[class]", std::vector<char>)
         CHECK(s == "AAAA");
     }
     SECTION( "rbegin/rend" )
-    {   gynx::sq_gen<T> t("AAAA");
+    {   gnx::sq_gen<T> t("AAAA");
         auto s_it = s.cbegin();
         for
         (   auto t_it = t.rbegin()
@@ -200,7 +200,7 @@ TEMPLATE_TEST_CASE( "gynx::sq", "[class]", std::vector<char>)
         CHECK(t == "TGCA");
     }
     SECTION( "crbegin/crend" )
-    {   const gynx::sq_gen<T> t("ACGT");
+    {   const gnx::sq_gen<T> t("ACGT");
         auto s_it = s.begin();
         for
         (   auto t_it = t.crbegin()
@@ -214,14 +214,14 @@ TEMPLATE_TEST_CASE( "gynx::sq", "[class]", std::vector<char>)
 // -- capacity -----------------------------------------------------------------
 
     SECTION( "empty()" )
-    {   gynx::sq_gen<T> e;
+    {   gnx::sq_gen<T> e;
         CHECK(e.empty());
         e["test"] = 1;
         CHECK(!e.empty());
         CHECK(!s.empty());
     }
     SECTION( "size()" )
-    {   gynx::sq_gen<T> e;
+    {   gnx::sq_gen<T> e;
         CHECK(0 == e.size());
         CHECK(4 == s.size());
     }
@@ -240,14 +240,14 @@ TEMPLATE_TEST_CASE( "gynx::sq", "[class]", std::vector<char>)
 // -- subseq operator ----------------------------------------------------------
 
     SECTION( "subseq operator" )
-    {   gynx::sq_gen<T> org{"CCATACGTGAC"};
+    {   gnx::sq_gen<T> org{"CCATACGTGAC"};
         CHECK(org(4, 4) == s);
         CHECK(org(0) == org);
         CHECK(org(4) == "ACGTGAC");
         CHECK_THROWS_AS(org(20) == "ACGTGAC", std::out_of_range);
 
         // casting sq_view to sq_gen
-        gynx::sq_gen<T> sub = gynx::sq_gen<T>(org(4, 10));
+        gnx::sq_gen<T> sub = gnx::sq_gen<T>(org(4, 10));
         CHECK(sub == "ACGTGAC");
     }
 
@@ -297,7 +297,7 @@ TEMPLATE_TEST_CASE( "gynx::sq", "[class]", std::vector<char>)
 
         std::stringstream ss;
         ss << s;
-        gynx::sq_gen<T> t;
+        gnx::sq_gen<T> t;
         ss >> t;
 
         CHECK(s == t);
@@ -322,18 +322,18 @@ TEMPLATE_TEST_CASE( "gynx::sq", "[class]", std::vector<char>)
 }
 
 #if defined(__CUDACC__) || defined(__HIPCC__)
-TEMPLATE_TEST_CASE( "gynx::sq_view", "[view]", std::vector<char>, thrust::host_vector<char>, thrust::universal_vector<char>)
+TEMPLATE_TEST_CASE( "gnx::sq_view", "[view]", std::vector<char>, thrust::host_vector<char>, thrust::universal_vector<char>)
 #else
-TEMPLATE_TEST_CASE( "gynx::sq_view", "[view]", std::vector<char>)
+TEMPLATE_TEST_CASE( "gnx::sq_view", "[view]", std::vector<char>)
 #endif //__CUDACC__
 {   typedef TestType T;
 
-    gynx::sq_gen<T> s{"ACGT"};
+    gnx::sq_gen<T> s{"ACGT"};
 
 // -- constructors -------------------------------------------------------------
 
     SECTION( "construct from sq_gen" )
-    {   gynx::sq_view_gen<T> v{s};
+    {   gnx::sq_view_gen<T> v{s};
         CHECK(v.size() == s.size());
         CHECK_FALSE(v.empty());
         CHECK(v == s);
@@ -342,7 +342,7 @@ TEMPLATE_TEST_CASE( "gynx::sq_view", "[view]", std::vector<char>)
 
     SECTION( "construct from pointer+length" )
     {   const char* p = "ACGT";
-        gynx::sq_view_gen<T> v{p, 4};
+        gnx::sq_view_gen<T> v{p, 4};
         CHECK(v.size() == 4);
         CHECK(v[0] == 'A');
         CHECK(v.at(3) == 'T');
@@ -353,7 +353,7 @@ TEMPLATE_TEST_CASE( "gynx::sq_view", "[view]", std::vector<char>)
 // -- iterators ----------------------------------------------------------------
 
     SECTION( "iterate over view" )
-    {   gynx::sq_view_gen<T> v{s};
+    {   gnx::sq_view_gen<T> v{s};
         std::string collected;
         for (auto it = v.begin(); it != v.end(); ++it)
             collected.push_back(*it);
@@ -368,7 +368,7 @@ TEMPLATE_TEST_CASE( "gynx::sq_view", "[view]", std::vector<char>)
 // -- modifiers ----------------------------------------------------------------
 
     SECTION( "remove_prefix/suffix" )
-    {   gynx::sq_view_gen<T> v{s};
+    {   gnx::sq_view_gen<T> v{s};
         v.remove_prefix(1); // drop 'A'
         CHECK(v == "CGT");
         v.remove_suffix(1); // drop trailing 'T'
@@ -378,7 +378,7 @@ TEMPLATE_TEST_CASE( "gynx::sq_view", "[view]", std::vector<char>)
     }
 
     SECTION( "remove_prefix/suffix bounds" )
-    {   gynx::sq_view_gen<T> v{s};
+    {   gnx::sq_view_gen<T> v{s};
         REQUIRE_THROWS_AS(v.remove_prefix(5), std::out_of_range);
         REQUIRE_THROWS_AS(v.remove_suffix(5), std::out_of_range);
     }
@@ -386,7 +386,7 @@ TEMPLATE_TEST_CASE( "gynx::sq_view", "[view]", std::vector<char>)
 // -- operations ---------------------------------------------------------------
 
     SECTION( "substr" )
-    {   gynx::sq_view_gen<T> v{s};
+    {   gnx::sq_view_gen<T> v{s};
         auto sub = v.substr(1, 2);
         CHECK(sub == "CG");
         auto to_end = v.substr(2);
@@ -397,7 +397,7 @@ TEMPLATE_TEST_CASE( "gynx::sq_view", "[view]", std::vector<char>)
 // -- comparisons --------------------------------------------------------------
 
     SECTION( "compare to sq_gen and C-string" )
-    {   gynx::sq_view_gen<T> v{s};
+    {   gnx::sq_view_gen<T> v{s};
         CHECK(v == s);
         CHECK(s == v);
         CHECK(v == "ACGT");
@@ -409,10 +409,10 @@ TEMPLATE_TEST_CASE( "gynx::sq_view", "[view]", std::vector<char>)
 // -- ranges concept support --------------------------------------------------
 
     SECTION( "std::ranges::view concept" )
-    {   gynx::sq_view_gen<T> v{s};
+    {   gnx::sq_view_gen<T> v{s};
         // Verify that sq_view_gen satisfies the view concept
-        static_assert(std::ranges::view<gynx::sq_view_gen<T>>);
-        static_assert(std::ranges::range<gynx::sq_view_gen<T>>);
+        static_assert(std::ranges::view<gnx::sq_view_gen<T>>);
+        static_assert(std::ranges::range<gnx::sq_view_gen<T>>);
 
         // Test composability with range adaptors
         auto transformed = v | std::views::transform
@@ -425,7 +425,7 @@ TEMPLATE_TEST_CASE( "gynx::sq_view", "[view]", std::vector<char>)
     }
 
     SECTION( "composable with multiple adaptors" )
-    {   gynx::sq_view_gen<T> v{s};
+    {   gnx::sq_view_gen<T> v{s};
         // Chain multiple views
         auto result = v 
             | std::views::reverse 
@@ -437,34 +437,34 @@ TEMPLATE_TEST_CASE( "gynx::sq_view", "[view]", std::vector<char>)
 }
 
 #if defined(__CUDACC__)
-TEMPLATE_TEST_CASE( "gynx::io::fastaqz", "[io][in][out][cuda]", std::vector<char>, thrust::host_vector<char>, thrust::device_vector<char>, thrust::universal_vector<char>)
+TEMPLATE_TEST_CASE( "gnx::io::fastaqz", "[io][in][out][cuda]", std::vector<char>, thrust::host_vector<char>, thrust::device_vector<char>, thrust::universal_vector<char>)
 #elif defined(__HIPCC__)
-TEMPLATE_TEST_CASE( "gynx::io::fastaqz", "[io][in][out][rocm]", std::vector<char>, thrust::host_vector<char>, thrust::device_vector<char>, thrust::universal_vector<char>, gynx::unified_vector<char>)
+TEMPLATE_TEST_CASE( "gnx::io::fastaqz", "[io][in][out][rocm]", std::vector<char>, thrust::host_vector<char>, thrust::device_vector<char>, thrust::universal_vector<char>, gnx::unified_vector<char>)
 #else
-TEMPLATE_TEST_CASE( "gynx::io::fastaqz", "[io][in][out]", std::vector<char>)
+TEMPLATE_TEST_CASE( "gnx::io::fastaqz", "[io][in][out]", std::vector<char>)
 #endif
 {   typedef TestType T;
     std::string desc("Chlamydia psittaci 6BC plasmid pCps6BC, complete sequence");
-    gynx::sq_gen<T> s, t;
+    gnx::sq_gen<T> s, t;
     CHECK_THROWS_AS
     (   s.load("wrong.fa")
     ,   std::runtime_error
     );
 
-    gynx::sq_gen<T> wrong_ndx;
+    gnx::sq_gen<T> wrong_ndx;
     wrong_ndx.load(SAMPLE_GENOME, 3);
     CHECK(wrong_ndx.empty());
-    gynx::sq_gen<T> bad_id;
+    gnx::sq_gen<T> bad_id;
     bad_id.load(SAMPLE_GENOME, "bad_id");
     CHECK(bad_id.empty());
 
     // REQUIRE_THAT
-    // (   gynx::lut::phred33[static_cast<uint8_t>('J')]
+    // (   gnx::lut::phred33[static_cast<uint8_t>('J')]
     // ,   Catch::Matchers::WithinAbs(7.943282e-05, 0.000001)
     // );
 
     SECTION( "load with index" )
-    {   s.load(SAMPLE_GENOME, 1, gynx::in::fast_aqz<decltype(s)>());
+    {   s.load(SAMPLE_GENOME, 1, gnx::in::fast_aqz<decltype(s)>());
         CHECK(7553 == std::size(s));
         CHECK(s(0, 10) == "TATAATTAAA");
         CHECK(s( 7543) == "TCCAATTCTA");
@@ -482,7 +482,7 @@ TEMPLATE_TEST_CASE( "gynx::io::fastaqz", "[io][in][out]", std::vector<char>)
     SECTION( "save fasta" )
     {   s.load(SAMPLE_GENOME, 1);
         std::string filename = "test_output.fa";
-        s.save(filename, gynx::out::fasta());
+        s.save(filename, gnx::out::fasta());
         t.load(filename);
         CHECK(s == t);
         std::remove(filename.c_str());
@@ -490,7 +490,7 @@ TEMPLATE_TEST_CASE( "gynx::io::fastaqz", "[io][in][out]", std::vector<char>)
     SECTION( "save fasta.gz" )
     {   s.load(SAMPLE_GENOME, 1);
         std::string filename = "test_output.fa.gz";
-        s.save(filename, gynx::out::fasta_gz());
+        s.save(filename, gnx::out::fasta_gz());
         t.load(filename);
         CHECK(s == t);
         std::remove(filename.c_str());
@@ -498,7 +498,7 @@ TEMPLATE_TEST_CASE( "gynx::io::fastaqz", "[io][in][out]", std::vector<char>)
     SECTION( "save fastq" )
     {   s.load(SAMPLE_READS);
         std::string filename = "test_reads.fq";
-        s.save(filename, gynx::out::fastq());
+        s.save(filename, gnx::out::fastq());
         t.load(filename);
         CHECK(s == t);
         std::remove(filename.c_str());
@@ -506,7 +506,7 @@ TEMPLATE_TEST_CASE( "gynx::io::fastaqz", "[io][in][out]", std::vector<char>)
     SECTION( "save fastq.gz" )
     {   s.load(SAMPLE_READS);
         std::string filename = "test_reads.fqz";
-        s.save(filename, gynx::out::fastq_gz());
+        s.save(filename, gnx::out::fastq_gz());
         t.load(filename);
         CHECK(s == t);
         std::remove(filename.c_str());
@@ -514,145 +514,145 @@ TEMPLATE_TEST_CASE( "gynx::io::fastaqz", "[io][in][out]", std::vector<char>)
 }
 
 #if defined(__CUDACC__)
-TEMPLATE_TEST_CASE( "gynx::valid", "[algorithm][valid][cuda]", std::vector<char>, thrust::host_vector<char>, thrust::universal_vector<char>)
+TEMPLATE_TEST_CASE( "gnx::valid", "[algorithm][valid][cuda]", std::vector<char>, thrust::host_vector<char>, thrust::universal_vector<char>)
 #elif defined(__HIPCC__)
-TEMPLATE_TEST_CASE( "gynx::valid", "[algorithm][valid][rocm]", std::vector<char>, thrust::host_vector<char>, thrust::universal_vector<char>, gynx::unified_vector<char>)
+TEMPLATE_TEST_CASE( "gnx::valid", "[algorithm][valid][rocm]", std::vector<char>, thrust::host_vector<char>, thrust::universal_vector<char>, gnx::unified_vector<char>)
 #else
-TEMPLATE_TEST_CASE( "gynx::valid", "[algorithm][valid]", std::vector<char>)
+TEMPLATE_TEST_CASE( "gnx::valid", "[algorithm][valid]", std::vector<char>)
 #endif //__CUDACC__
 {   typedef TestType T;
 
 // -- nucleotide validation ----------------------------------------------------
 
     SECTION( "valid nucleotide sequences" )
-    {   gynx::sq_gen<T> s1{"ACGT"};
-        CHECK(gynx::valid(s1, true));
-        CHECK(gynx::valid_nucleotide(s1));
-        gynx::sq_gen<T> s2{"ACGTACGTNNN"};
-        CHECK(gynx::valid_nucleotide(s2));
+    {   gnx::sq_gen<T> s1{"ACGT"};
+        CHECK(gnx::valid(s1, true));
+        CHECK(gnx::valid_nucleotide(s1));
+        gnx::sq_gen<T> s2{"ACGTACGTNNN"};
+        CHECK(gnx::valid_nucleotide(s2));
         // lowercase
-        gynx::sq_gen<T> s3{"acgtacgt"};
-        CHECK(gynx::valid_nucleotide(s3));
+        gnx::sq_gen<T> s3{"acgtacgt"};
+        CHECK(gnx::valid_nucleotide(s3));
         // mixed case
-        gynx::sq_gen<T> s4{"AcGtNn"};
-        CHECK(gynx::valid_nucleotide(s4));
+        gnx::sq_gen<T> s4{"AcGtNn"};
+        CHECK(gnx::valid_nucleotide(s4));
         // with RNA base U
-        gynx::sq_gen<T> s5{"ACGU"};
-        CHECK(gynx::valid_nucleotide(s5));
+        gnx::sq_gen<T> s5{"ACGU"};
+        CHECK(gnx::valid_nucleotide(s5));
         // with IUPAC ambiguity codes
-        gynx::sq_gen<T> s6{"ACGTRYMKSWBDHVN"};
-        CHECK(gynx::valid_nucleotide(s6));
-        gynx::sq_gen<T> s7{"acgtrymkswbdhvn"};
-        CHECK(gynx::valid_nucleotide(s7));
+        gnx::sq_gen<T> s6{"ACGTRYMKSWBDHVN"};
+        CHECK(gnx::valid_nucleotide(s6));
+        gnx::sq_gen<T> s7{"acgtrymkswbdhvn"};
+        CHECK(gnx::valid_nucleotide(s7));
     }
 
     SECTION( "invalid nucleotide sequences" )
     {   // with invalid character
-        gynx::sq_gen<T> s1{"ACGT123"};
-        CHECK_FALSE(gynx::valid_nucleotide(s1));
-        gynx::sq_gen<T> s2{"ACGT X"};
-        CHECK_FALSE(gynx::valid_nucleotide(s2));
+        gnx::sq_gen<T> s1{"ACGT123"};
+        CHECK_FALSE(gnx::valid_nucleotide(s1));
+        gnx::sq_gen<T> s2{"ACGT X"};
+        CHECK_FALSE(gnx::valid_nucleotide(s2));
         // with space
-        gynx::sq_gen<T> s3{"ACG T"};
-        CHECK_FALSE(gynx::valid_nucleotide(s3));
+        gnx::sq_gen<T> s3{"ACG T"};
+        CHECK_FALSE(gnx::valid_nucleotide(s3));
         // with newline
-        gynx::sq_gen<T> s4{"ACGT\n"};
-        CHECK_FALSE(gynx::valid_nucleotide(s4));
+        gnx::sq_gen<T> s4{"ACGT\n"};
+        CHECK_FALSE(gnx::valid_nucleotide(s4));
         // peptide sequence
-        gynx::sq_gen<T> s5{"MVHLTPEEK"};
-        CHECK_FALSE(gynx::valid_nucleotide(s5));
+        gnx::sq_gen<T> s5{"MVHLTPEEK"};
+        CHECK_FALSE(gnx::valid_nucleotide(s5));
     }
 
     SECTION( "empty nucleotide sequence" )
-    {   gynx::sq_gen<T> s{""};
-        CHECK(gynx::valid_nucleotide(s));
+    {   gnx::sq_gen<T> s{""};
+        CHECK(gnx::valid_nucleotide(s));
     }
 
 // -- peptide validation -------------------------------------------------------
 
     SECTION( "valid peptide sequences" )
-    {   gynx::sq_gen<T> s1{"ACDEFGHIKLMNPQRSTVWY"};
-        CHECK(gynx::valid(s1));
-        CHECK(gynx::valid(s1, false));
-        CHECK(gynx::valid_peptide(s1));
-        CHECK_FALSE(gynx::valid_nucleotide(s1));
+    {   gnx::sq_gen<T> s1{"ACDEFGHIKLMNPQRSTVWY"};
+        CHECK(gnx::valid(s1));
+        CHECK(gnx::valid(s1, false));
+        CHECK(gnx::valid_peptide(s1));
+        CHECK_FALSE(gnx::valid_nucleotide(s1));
         // lowercase
-        gynx::sq_gen<T> s2{"acdefghiklmnpqrstvwy"};
-        CHECK(gynx::valid_peptide(s2));
+        gnx::sq_gen<T> s2{"acdefghiklmnpqrstvwy"};
+        CHECK(gnx::valid_peptide(s2));
         // mixed case
-        gynx::sq_gen<T> s3{"MvHlTpEeK"};
-        CHECK(gynx::valid_peptide(s3));
+        gnx::sq_gen<T> s3{"MvHlTpEeK"};
+        CHECK(gnx::valid_peptide(s3));
         // with ambiguous codes
-        gynx::sq_gen<T> s4{"ACBZX"};
-        CHECK(gynx::valid_peptide(s4));
+        gnx::sq_gen<T> s4{"ACBZX"};
+        CHECK(gnx::valid_peptide(s4));
         // with special amino acids
-        gynx::sq_gen<T> s5{"ACUO"};
-        CHECK(gynx::valid_peptide(s5));
+        gnx::sq_gen<T> s5{"ACUO"};
+        CHECK(gnx::valid_peptide(s5));
         // with stop codon
-        gynx::sq_gen<T> s6{"MVHLT*"};
-        CHECK(gynx::valid_peptide(s6));
+        gnx::sq_gen<T> s6{"MVHLT*"};
+        CHECK(gnx::valid_peptide(s6));
     }
 
     SECTION( "invalid peptide sequences" )
     {   // with number
-        gynx::sq_gen<T> s1{"ACDE123"};
-        CHECK_FALSE(gynx::valid_peptide(s1));
+        gnx::sq_gen<T> s1{"ACDE123"};
+        CHECK_FALSE(gnx::valid_peptide(s1));
         // with space
-        gynx::sq_gen<T> s2{"ACDE F"};
-        CHECK_FALSE(gynx::valid_peptide(s2));
+        gnx::sq_gen<T> s2{"ACDE F"};
+        CHECK_FALSE(gnx::valid_peptide(s2));
         // with newline
-        gynx::sq_gen<T> s3{"ACDEF\n"};
-        CHECK_FALSE(gynx::valid_peptide(s3));
+        gnx::sq_gen<T> s3{"ACDEF\n"};
+        CHECK_FALSE(gnx::valid_peptide(s3));
         // with invalid special character
-        gynx::sq_gen<T> s4{"ACDE-F"};
-        CHECK_FALSE(gynx::valid_peptide(s4));
+        gnx::sq_gen<T> s4{"ACDE-F"};
+        CHECK_FALSE(gnx::valid_peptide(s4));
     }
 
     SECTION( "empty sequence" )
-    {   gynx::sq_gen<T> s{""};
-        CHECK(gynx::valid(s));
+    {   gnx::sq_gen<T> s{""};
+        CHECK(gnx::valid(s));
     }
 
 // -- iterator-based validation ------------------------------------------------
 
     SECTION( "validation with iterators" )
-    {   gynx::sq_gen<T> s{"ACGTACGT"};
+    {   gnx::sq_gen<T> s{"ACGTACGT"};
         // full range
-        CHECK(gynx::valid(s.begin(), s.end(), true));
-        CHECK(gynx::valid_nucleotide(s.begin(), s.end()));
+        CHECK(gnx::valid(s.begin(), s.end(), true));
+        CHECK(gnx::valid_nucleotide(s.begin(), s.end()));
         // partial range
-        CHECK(gynx::valid_nucleotide(s.begin(), s.begin() + 4));
+        CHECK(gnx::valid_nucleotide(s.begin(), s.begin() + 4));
         // substring
         auto sub = s(0, 4);
-        CHECK(gynx::valid_nucleotide(sub));
+        CHECK(gnx::valid_nucleotide(sub));
     }
 
     SECTION( "validation with execution policy" )
-    {   gynx::sq_gen<T> s;
+    {   gnx::sq_gen<T> s;
         s.load(SAMPLE_GENOME, 0);
         CHECK(s.size() > 0);
-        CHECK(gynx::valid_nucleotide(s));
-        CHECK(gynx::valid_nucleotide(gynx::execution::seq, s));
-        CHECK(gynx::valid_nucleotide(gynx::execution::unseq, s));
-        CHECK(gynx::valid_nucleotide(gynx::execution::par, s));
-        CHECK(gynx::valid_nucleotide(gynx::execution::par_unseq, s));
+        CHECK(gnx::valid_nucleotide(s));
+        CHECK(gnx::valid_nucleotide(gnx::execution::seq, s));
+        CHECK(gnx::valid_nucleotide(gnx::execution::unseq, s));
+        CHECK(gnx::valid_nucleotide(gnx::execution::par, s));
+        CHECK(gnx::valid_nucleotide(gnx::execution::par_unseq, s));
 
         // introduce an invalid character and ensure policy overload detects it
         s[2] = 'Z';
-        CHECK_FALSE(gynx::valid_nucleotide(gynx::execution::seq, s));
-        CHECK_FALSE(gynx::valid_nucleotide(gynx::execution::unseq, s));
-        CHECK_FALSE(gynx::valid_nucleotide(gynx::execution::par, s));
-        CHECK_FALSE(gynx::valid_nucleotide(gynx::execution::par_unseq, s));
+        CHECK_FALSE(gnx::valid_nucleotide(gnx::execution::seq, s));
+        CHECK_FALSE(gnx::valid_nucleotide(gnx::execution::unseq, s));
+        CHECK_FALSE(gnx::valid_nucleotide(gnx::execution::par, s));
+        CHECK_FALSE(gnx::valid_nucleotide(gnx::execution::par_unseq, s));
 
         // peptide validation remains true with Z
-        CHECK(gynx::valid_peptide(gynx::execution::par, s));
+        CHECK(gnx::valid_peptide(gnx::execution::par, s));
     }
 
     SECTION( "validation with sq_view" )
-    {   gynx::sq_gen<T> s{"ACGTACGT"};
-        gynx::sq_view_gen<T> view{s};
-        CHECK(gynx::valid_nucleotide(view));
-        CHECK(gynx::valid_nucleotide(view.begin(), view.end()));
+    {   gnx::sq_gen<T> s{"ACGTACGT"};
+        gnx::sq_view_gen<T> view{s};
+        CHECK(gnx::valid_nucleotide(view));
+        CHECK(gnx::valid_nucleotide(view.begin(), view.end()));
     }
 
 // -- compile-time validation --------------------------------------------------
@@ -660,7 +660,7 @@ TEMPLATE_TEST_CASE( "gynx::valid", "[algorithm][valid]", std::vector<char>)
     SECTION( "constexpr validation" )
     {   // These should compile if the function is constexpr
         constexpr std::array<char, 4> arr{'A', 'C', 'G', 'T'};
-        constexpr bool result = gynx::valid_nucleotide(arr.begin(), arr.end());
+        constexpr bool result = gnx::valid_nucleotide(arr.begin(), arr.end());
         CHECK(result);
     }
 
@@ -668,54 +668,54 @@ TEMPLATE_TEST_CASE( "gynx::valid", "[algorithm][valid]", std::vector<char>)
 
     SECTION( "sequences valid for one type but not another" )
     {   // Some characters valid for peptides but not nucleotides
-        gynx::sq_gen<T> s1{"EFIKLPQVWY"};
-        CHECK(gynx::valid_peptide(s1));
-        CHECK_FALSE(gynx::valid_nucleotide(s1));
+        gnx::sq_gen<T> s1{"EFIKLPQVWY"};
+        CHECK(gnx::valid_peptide(s1));
+        CHECK_FALSE(gnx::valid_nucleotide(s1));
 
         // All nucleotides are also valid peptides (overlap in alphabet)
-        gynx::sq_gen<T> s2{"ACGT"};
-        CHECK(gynx::valid_nucleotide(s2));
-        CHECK(gynx::valid_peptide(s2)); // A, C, G, T are also amino acids
+        gnx::sq_gen<T> s2{"ACGT"};
+        CHECK(gnx::valid_nucleotide(s2));
+        CHECK(gnx::valid_peptide(s2)); // A, C, G, T are also amino acids
     }
 
 // -- range compatibility tests ------------------------------------------------
 
     SECTION( "view ranges compatibility" )
-    {   gynx::sq_gen<T> s{"ACGTACGTKQ"};
-        CHECK(gynx::valid_nucleotide(s | std::views::take(8)));
-        gynx::sq_view_gen<T> v{s};
+    {   gnx::sq_gen<T> s{"ACGTACGTKQ"};
+        CHECK(gnx::valid_nucleotide(s | std::views::take(8)));
+        gnx::sq_view_gen<T> v{s};
         v.remove_suffix(2); // drop 'KQ'
-        CHECK(gynx::valid_nucleotide(v));
-        CHECK(gynx::valid_nucleotide(v.begin(), v.end()));
+        CHECK(gnx::valid_nucleotide(v));
+        CHECK(gnx::valid_nucleotide(v.begin(), v.end()));
         auto result = s
         |   std::views::take(8)
         |   std::views::transform([](auto c) { return std::tolower(c); })
         |   std::views::reverse;
-        CHECK(gynx::valid_nucleotide(result));
+        CHECK(gnx::valid_nucleotide(result));
     }
 }
 
 #if defined(__CUDACC__)
-TEMPLATE_TEST_CASE( "gynx::valid::device", "[algorithm][valid][cuda]", thrust::device_vector<char>, thrust::universal_vector<char>)
+TEMPLATE_TEST_CASE( "gnx::valid::device", "[algorithm][valid][cuda]", thrust::device_vector<char>, thrust::universal_vector<char>)
 {   typedef TestType T;
 
-    gynx::sq_gen<T> s;
+    gnx::sq_gen<T> s;
     s.load(SAMPLE_GENOME, 0);
     CHECK(s.size() > 0);
 
     SECTION( "device vector" )
-    {   CHECK(gynx::valid_nucleotide(thrust::cuda::par, s));
+    {   CHECK(gnx::valid_nucleotide(thrust::cuda::par, s));
         s[2] = 'Z';
-        CHECK_FALSE(gynx::valid_nucleotide(thrust::cuda::par, s));
+        CHECK_FALSE(gnx::valid_nucleotide(thrust::cuda::par, s));
     }
 
     SECTION( "cuda stream" )
     {   cudaStream_t streamA;
         cudaStreamCreate(&streamA);
-        CHECK(gynx::valid_nucleotide(thrust::cuda::par.on(streamA), s));
+        CHECK(gnx::valid_nucleotide(thrust::cuda::par.on(streamA), s));
         cudaStreamSynchronize(streamA);
         s[2] = 'Z';
-        CHECK_FALSE(gynx::valid_nucleotide(thrust::cuda::par_nosync.on(streamA), s));
+        CHECK_FALSE(gnx::valid_nucleotide(thrust::cuda::par_nosync.on(streamA), s));
         cudaStreamSynchronize(streamA);
         cudaStreamDestroy(streamA);
     }
@@ -723,26 +723,26 @@ TEMPLATE_TEST_CASE( "gynx::valid::device", "[algorithm][valid][cuda]", thrust::d
 #endif //__CUDACC__
 
 #if defined(__HIPCC__)
-TEMPLATE_TEST_CASE( "gynx::valid::device", "[algorithm][valid][rocm]", thrust::device_vector<char>, thrust::universal_vector<char>, gynx::unified_vector<char>)
+TEMPLATE_TEST_CASE( "gnx::valid::device", "[algorithm][valid][rocm]", thrust::device_vector<char>, thrust::universal_vector<char>, gnx::unified_vector<char>)
 {   typedef TestType T;
 
-    gynx::sq_gen<T> s;
+    gnx::sq_gen<T> s;
     s.load(SAMPLE_GENOME, 0);
     CHECK(s.size() > 0);
 
     SECTION( "device vector" )
-    {   CHECK(gynx::valid_nucleotide(thrust::hip::par, s));
+    {   CHECK(gnx::valid_nucleotide(thrust::hip::par, s));
         s[2] = 'Z';
-        CHECK_FALSE(gynx::valid_nucleotide(thrust::hip::par, s));
+        CHECK_FALSE(gnx::valid_nucleotide(thrust::hip::par, s));
     }
 
     SECTION( "cuda stream" )
     {   hipStream_t streamA;
         hipStreamCreate(&streamA);
-        CHECK(gynx::valid_nucleotide(thrust::hip::par.on(streamA), s));
+        CHECK(gnx::valid_nucleotide(thrust::hip::par.on(streamA), s));
         hipStreamSynchronize(streamA);
         s[2] = 'Z';
-        CHECK_FALSE(gynx::valid_nucleotide(thrust::hip::par_nosync.on(streamA), s));
+        CHECK_FALSE(gnx::valid_nucleotide(thrust::hip::par_nosync.on(streamA), s));
         hipStreamSynchronize(streamA);
         hipStreamDestroy(streamA);
     }
@@ -750,70 +750,70 @@ TEMPLATE_TEST_CASE( "gynx::valid::device", "[algorithm][valid][rocm]", thrust::d
 #endif //__HIPCC__
 
 #if defined(__CUDACC__)
-TEMPLATE_TEST_CASE( "gynx::random", "[algorithm][random][cuda]", std::vector<char>, thrust::host_vector<char>)
+TEMPLATE_TEST_CASE( "gnx::random", "[algorithm][random][cuda]", std::vector<char>, thrust::host_vector<char>)
 #elif defined(__HIPCC__)
-TEMPLATE_TEST_CASE( "gynx::random", "[algorithm][random][rocm]", std::vector<char>, thrust::host_vector<char>)
+TEMPLATE_TEST_CASE( "gnx::random", "[algorithm][random][rocm]", std::vector<char>, thrust::host_vector<char>)
 #else
-TEMPLATE_TEST_CASE( "gynx::random", "[algorithm][random]", std::vector<char>)
+TEMPLATE_TEST_CASE( "gnx::random", "[algorithm][random]", std::vector<char>)
 #endif //__CUDACC__ || __HIPCC__
 {   typedef TestType T;
-    gynx::sq_gen<T> s(20);
+    gnx::sq_gen<T> s(20);
     const auto N{10'000};
 
     SECTION( "random nucleotide sequence" )
-    {   gynx::rand(s.begin(), 20, "ACGT", seed_pi);
-        CHECK(gynx::valid_nucleotide(s));
+    {   gnx::rand(s.begin(), 20, "ACGT", seed_pi);
+        CHECK(gnx::valid_nucleotide(s));
         CHECK(s == "TTCGGCCGTCGTTAAACACG");
-        auto t = gynx::random::dna<decltype(s)>(20, seed_pi);
+        auto t = gnx::random::dna<decltype(s)>(20, seed_pi);
         CHECK(s == t);
     }
 
     SECTION( "random sequence with execution policy" )
-    {   gynx::sq_gen<T> r(N);
-        auto t = gynx::random::dna<decltype(s)>(N, seed_pi);
+    {   gnx::sq_gen<T> r(N);
+        auto t = gnx::random::dna<decltype(s)>(N, seed_pi);
         CHECK(N == t.size());
-        gynx::rand(gynx::execution::seq, r.begin(), N, "ACGT", seed_pi);
+        gnx::rand(gnx::execution::seq, r.begin(), N, "ACGT", seed_pi);
         CHECK(t == r);
-        gynx::rand(gynx::execution::unseq, r.begin(), N, "ACGT", seed_pi);
+        gnx::rand(gnx::execution::unseq, r.begin(), N, "ACGT", seed_pi);
         CHECK(t == r);
-        gynx::rand(gynx::execution::par, r.begin(), N, "ACGT", seed_pi);
+        gnx::rand(gnx::execution::par, r.begin(), N, "ACGT", seed_pi);
         CHECK(t == r);
-        gynx::rand(gynx::execution::par_unseq, r.begin(), N, "ACGT", seed_pi);
+        gnx::rand(gnx::execution::par_unseq, r.begin(), N, "ACGT", seed_pi);
         CHECK(t == r);
     }
 
     // SECTION( "random nucleotide sequence with weights" )
-    // {   gynx::rand(s.begin(), 20, "ACGT", {35, 15, 15, 35}, seed_pi);
-    //     CHECK(gynx::valid_nucleotide(s));
+    // {   gnx::rand(s.begin(), 20, "ACGT", {35, 15, 15, 35}, seed_pi);
+    //     CHECK(gnx::valid_nucleotide(s));
     //     // CAPTURE(s);
     //     CHECK(s == "TTCTTAAGTCTTTAAACACG");
-    //     auto t = gynx::random::dna<decltype(s)>(20, 30, seed_pi);
+    //     auto t = gnx::random::dna<decltype(s)>(20, 30, seed_pi);
     //     t[2] = 'C';
     //     CHECK(s == t);
     // }
 }
 
 #if defined(__CUDACC__)
-TEMPLATE_TEST_CASE( "gynx::random::device", "[algorithm][random][cuda]", thrust::device_vector<char>, thrust::universal_vector<char> )
+TEMPLATE_TEST_CASE( "gnx::random::device", "[algorithm][random][cuda]", thrust::device_vector<char>, thrust::universal_vector<char> )
 {   typedef TestType T;
-    gynx::sq_gen<T> s(20);
+    gnx::sq_gen<T> s(20);
     const auto N{10'000};
 
     SECTION( "device vector" )
-    {   gynx::rand(thrust::cuda::par, s.begin(), 20, "ACGT", seed_pi);
-        CHECK(gynx::valid_nucleotide(thrust::cuda::par, s));
+    {   gnx::rand(thrust::cuda::par, s.begin(), 20, "ACGT", seed_pi);
+        CHECK(gnx::valid_nucleotide(thrust::cuda::par, s));
         CHECK(s == "TTCGGCCGTCGTTAAACACG");
-        auto t = gynx::random::dna<decltype(s)>(20, seed_pi);
+        auto t = gnx::random::dna<decltype(s)>(20, seed_pi);
         CHECK(s == t);
     }
 
     SECTION( "cuda stream" )
-    {   auto r = gynx::random::dna<decltype(s)>(N, seed_pi);
-        gynx::sq_gen<T> t(N);
+    {   auto r = gnx::random::dna<decltype(s)>(N, seed_pi);
+        gnx::sq_gen<T> t(N);
         cudaStream_t stream;
         cudaStreamCreate(&stream);
-        gynx::rand(thrust::cuda::par.on(stream), t.begin(), N, "ACGT", seed_pi);
-        CHECK(gynx::valid_nucleotide(thrust::cuda::par.on(stream), t));
+        gnx::rand(thrust::cuda::par.on(stream), t.begin(), N, "ACGT", seed_pi);
+        CHECK(gnx::valid_nucleotide(thrust::cuda::par.on(stream), t));
         CHECK(r == t);
         cudaStreamSynchronize(stream);
         cudaStreamDestroy(stream);
@@ -822,26 +822,26 @@ TEMPLATE_TEST_CASE( "gynx::random::device", "[algorithm][random][cuda]", thrust:
 #endif //__CUDACC__
 
 #if defined(__HIPCC__)
-TEMPLATE_TEST_CASE( "gynx::random::device", "[algorithm][random][rocm]", thrust::device_vector<char>, thrust::universal_vector<char>, gynx::unified_vector<char> )
+TEMPLATE_TEST_CASE( "gnx::random::device", "[algorithm][random][rocm]", thrust::device_vector<char>, thrust::universal_vector<char>, gnx::unified_vector<char> )
 {   typedef TestType T;
-    gynx::sq_gen<T> s(20);
+    gnx::sq_gen<T> s(20);
     const auto N{10'000};
 
     SECTION( "device vector" )
-    {   gynx::rand(thrust::hip::par, s.begin(), 20, "ACGT", seed_pi);
-        CHECK(gynx::valid_nucleotide(thrust::hip::par, s));
+    {   gnx::rand(thrust::hip::par, s.begin(), 20, "ACGT", seed_pi);
+        CHECK(gnx::valid_nucleotide(thrust::hip::par, s));
         CHECK(s == "TTCGGCCGTCGTTAAACACG");
-        auto t = gynx::random::dna<decltype(s)>(20, seed_pi);
+        auto t = gnx::random::dna<decltype(s)>(20, seed_pi);
         CHECK(s == t);
     }
 
     SECTION( "hip stream" )
-    {   auto r = gynx::random::dna<decltype(s)>(N, seed_pi);
-        gynx::sq_gen<T> t(N);
+    {   auto r = gnx::random::dna<decltype(s)>(N, seed_pi);
+        gnx::sq_gen<T> t(N);
         hipStream_t stream;
         hipStreamCreate(&stream);
-        gynx::rand(thrust::hip::par.on(stream), t.begin(), N, "ACGT", seed_pi);
-        CHECK(gynx::valid_nucleotide(thrust::hip::par.on(stream), t));
+        gnx::rand(thrust::hip::par.on(stream), t.begin(), N, "ACGT", seed_pi);
+        CHECK(gnx::valid_nucleotide(thrust::hip::par.on(stream), t));
         CHECK(r == t);
         hipStreamSynchronize(stream);
         hipStreamDestroy(stream);

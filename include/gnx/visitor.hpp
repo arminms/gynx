@@ -19,8 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef _GYNX_VISITOR_HPP_
-#define _GYNX_VISITOR_HPP_
+#ifndef _GNX_VISITOR_HPP_
+#define _GNX_VISITOR_HPP_
 
 #include <iostream>
 #include <iomanip>
@@ -32,7 +32,7 @@
 #include <functional>
 #include <any>
 
-namespace gynx {
+namespace gnx {
 
 // -- make_td_print_visitor() --------------------------------------------------
 
@@ -166,6 +166,6 @@ inline void register_td_scan_visitor(std::string type, const F& f)
 {   td_scan_visitor.insert(std::make_pair(type, f));   }
 
 
-}   // end gynx namespace
+}   // end gnx namespace
 
-#endif  //_GYNX_VISITOR_HPP_
+#endif  //_GNX_VISITOR_HPP_

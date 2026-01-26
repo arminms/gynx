@@ -1,11 +1,11 @@
 #include <benchmark/benchmark.h>
 
-#include <gynx/sq.hpp>
-#include <gynx/io/fastaqz.hpp>
-#include <gynx/algorithms/valid.hpp>
-#include <gynx/algorithms/random.hpp>
+#include <gnx/sq.hpp>
+#include <gnx/io/fastaqz.hpp>
+#include <gnx/algorithms/valid.hpp>
+#include <gnx/algorithms/random.hpp>
 
-using namespace gynx::execution;
+using namespace gnx::execution;
 
 const uint64_t seed_pi{3141592654};
 const std::string fasta_filename{"perf_data.fa"};
@@ -16,10 +16,10 @@ const std::string fasta_filename{"perf_data.fa"};
 template <typename T>
 void io_write_fasta(benchmark::State& st)
 {   size_t n = size_t(st.range());
-    auto s = gynx::random::dna<gynx::sq_gen<T>>(n);
+    auto s = gnx::random::dna<gnx::sq_gen<T>>(n);
 
     for (auto _ : st)
-    {   s.save(fasta_filename, gynx::out::fasta());
+    {   s.save(fasta_filename, gnx::out::fasta());
     }
     std::remove(fasta_filename.c_str());
 
@@ -33,7 +33,7 @@ BENCHMARK_TEMPLATE(io_write_fasta, std::vector<char>)
 ->  RangeMultiplier(2)
 ->  Range(1<<28, 1<<29)
 ->  Unit(benchmark::kMillisecond);
-BENCHMARK_TEMPLATE(io_write_fasta, std::vector<char, gynx::default_init_allocator<char>>)
+BENCHMARK_TEMPLATE(io_write_fasta, std::vector<char, gnx::default_init_allocator<char>>)
 ->  RangeMultiplier(2)
 ->  Range(1<<28, 1<<29)
 ->  Unit(benchmark::kMillisecond);
@@ -50,7 +50,7 @@ BENCHMARK_TEMPLATE(io_write_fasta, thrust::device_vector<char>)
 #endif // __CUDACC__ || __HIPCC__
 
 #if defined(__HIPCC__)
-BENCHMARK_TEMPLATE(io_write_fasta, gynx::unified_vector<char>)
+BENCHMARK_TEMPLATE(io_write_fasta, gnx::unified_vector<char>)
 ->  RangeMultiplier(2)
 ->  Range(1<<28, 1<<29)
 ->  Unit(benchmark::kMillisecond);
@@ -62,9 +62,9 @@ BENCHMARK_TEMPLATE(io_write_fasta, gynx::unified_vector<char>)
 template <typename T>
 void io_read_fasta(benchmark::State& st)
 {   size_t n = size_t(st.range());
-    gynx::sq_gen<T> sr;
-    auto sw = gynx::random::dna<gynx::sq_gen<T>>(n);
-    sw.save(fasta_filename, gynx::out::fasta());
+    gnx::sq_gen<T> sr;
+    auto sw = gnx::random::dna<gnx::sq_gen<T>>(n);
+    sw.save(fasta_filename, gnx::out::fasta());
 
     for (auto _ : st)
     {   sr.load(fasta_filename);
@@ -82,7 +82,7 @@ BENCHMARK_TEMPLATE(io_read_fasta, std::vector<char>)
 ->  RangeMultiplier(2)
 ->  Range(1<<28, 1<<29)
 ->  Unit(benchmark::kMillisecond);
-BENCHMARK_TEMPLATE(io_read_fasta, std::vector<char, gynx::default_init_allocator<char>>)
+BENCHMARK_TEMPLATE(io_read_fasta, std::vector<char, gnx::default_init_allocator<char>>)
 ->  RangeMultiplier(2)
 ->  Range(1<<28, 1<<29)
 ->  Unit(benchmark::kMillisecond);
@@ -99,7 +99,7 @@ BENCHMARK_TEMPLATE(io_read_fasta, thrust::device_vector<char>)
 #endif // __CUDACC__ || __HIPCC__
 
 #if defined(__HIPCC__)
-BENCHMARK_TEMPLATE(io_read_fasta, gynx::unified_vector<char>)
+BENCHMARK_TEMPLATE(io_read_fasta, gnx::unified_vector<char>)
 ->  RangeMultiplier(2)
 ->  Range(1<<28, 1<<29)
 ->  Unit(benchmark::kMillisecond);
@@ -111,11 +111,11 @@ BENCHMARK_TEMPLATE(io_read_fasta, gynx::unified_vector<char>)
 template <typename T, typename ExecPolicy>
 void random(benchmark::State& st)
 {   size_t n = size_t(st.range());
-    gynx::sq_gen<T> s(n);
+    gnx::sq_gen<T> s(n);
     ExecPolicy policy;
 
     for (auto _ : st)
-    {   gynx::rand
+    {   gnx::rand
         (   policy
         ,   s.begin()
         ,   n
@@ -156,11 +156,11 @@ void random_cuda(benchmark::State& st)
 {   size_t n = size_t(st.range());
     cudaEvent_t start, stop;
     cudaEventCreate(&start); cudaEventCreate(&stop);
-    gynx::sq_gen<T> s(n);
+    gnx::sq_gen<T> s(n);
 
     for (auto _ : st)
     {   cudaEventRecord(start);
-        gynx::rand(thrust::cuda::par, s.begin(), n, "ACGT", seed_pi);
+        gnx::rand(thrust::cuda::par, s.begin(), n, "ACGT", seed_pi);
         cudaEventRecord(stop);
         cudaEventSynchronize(stop);
         float milliseconds = 0;
@@ -194,11 +194,11 @@ void random_rocm(benchmark::State& st)
 {   size_t n = size_t(st.range());
     hipEvent_t start, stop;
     hipEventCreate(&start); hipEventCreate(&stop);
-    gynx::sq_gen<T> s(n);
+    gnx::sq_gen<T> s(n);
 
     for (auto _ : st)
     {   hipEventRecord(start);
-        gynx::rand(thrust::hip::par, s.begin(), n, "ACGT", seed_pi);
+        gnx::rand(thrust::hip::par, s.begin(), n, "ACGT", seed_pi);
         hipEventRecord(stop);
         hipEventSynchronize(stop);
         float milliseconds = 0;
@@ -223,7 +223,7 @@ BENCHMARK_TEMPLATE(random_rocm, thrust::universal_vector<char>)
 ->  Range(1<<25, 1<<28)
 ->  UseManualTime()
 ->  Unit(benchmark::kMillisecond);
-BENCHMARK_TEMPLATE(random_rocm, gynx::unified_vector<char>)
+BENCHMARK_TEMPLATE(random_rocm, gnx::unified_vector<char>)
 ->  RangeMultiplier(2)
 ->  Range(1<<25, 1<<28)
 ->  UseManualTime()
@@ -236,11 +236,11 @@ BENCHMARK_TEMPLATE(random_rocm, gynx::unified_vector<char>)
 template <typename T, typename ExecPolicy>
 void valid(benchmark::State& st)
 {   size_t n = size_t(st.range());
-    auto s = gynx::random::dna<gynx::sq_gen<T>>(n, seed_pi);
+    auto s = gnx::random::dna<gnx::sq_gen<T>>(n, seed_pi);
     ExecPolicy policy;
 
     for (auto _ : st)
-        benchmark::DoNotOptimize(gynx::valid(policy, s));
+        benchmark::DoNotOptimize(gnx::valid(policy, s));
 
     st.counters["BW (GB/s)"] = benchmark::Counter
     (   (n * sizeof(typename T::value_type)) / 1e9
@@ -276,13 +276,13 @@ void valid_cuda(benchmark::State& st)
     // cudaStreamCreate(&stream);
     cudaEvent_t start, stop;
     cudaEventCreate(&start); cudaEventCreate(&stop);
-    auto s = gynx::random::dna<gynx::sq_gen<T>>(n, seed_pi);
+    auto s = gnx::random::dna<gnx::sq_gen<T>>(n, seed_pi);
 
     for (auto _ : st)
     {   cudaEventRecord(start);
         // cudaEventRecord(start, stream);
-        benchmark::DoNotOptimize(gynx::valid(s));
-        // benchmark::DoNotOptimize(gynx::valid(thrust::cuda::par.on(stream), s));
+        benchmark::DoNotOptimize(gnx::valid(s));
+        // benchmark::DoNotOptimize(gnx::valid(thrust::cuda::par.on(stream), s));
         cudaEventRecord(stop);
         // cudaEventRecord(stop, stream);
         cudaEventSynchronize(stop);
@@ -320,13 +320,13 @@ void valid_rocm(benchmark::State& st)
     // hipStreamCreate(&stream);
     hipEvent_t start, stop;
     hipEventCreate(&start); hipEventCreate(&stop);
-    auto s = gynx::random::dna<gynx::sq_gen<T>>(n, seed_pi);
+    auto s = gnx::random::dna<gnx::sq_gen<T>>(n, seed_pi);
 
     for (auto _ : st)
     {   hipEventRecord(start);
         // hipEventRecord(start, stream);
-        benchmark::DoNotOptimize(gynx::valid(s));
-        // benchmark::DoNotOptimize(gynx::valid(thrust::hip::par.on(stream), s));
+        benchmark::DoNotOptimize(gnx::valid(s));
+        // benchmark::DoNotOptimize(gnx::valid(thrust::hip::par.on(stream), s));
         hipEventRecord(stop);
         // hipEventRecord(stop, stream);
         hipEventSynchronize(stop);
@@ -352,7 +352,7 @@ BENCHMARK_TEMPLATE(valid_rocm, thrust::universal_vector<char>)
 ->  Range(1<<25, 1<<28)
 ->  UseManualTime()
 ->  Unit(benchmark::kMillisecond);
-BENCHMARK_TEMPLATE(valid_rocm, gynx::unified_vector<char>)
+BENCHMARK_TEMPLATE(valid_rocm, gnx::unified_vector<char>)
 ->  RangeMultiplier(2)
 ->  Range(1<<25, 1<<28)
 ->  UseManualTime()
@@ -368,11 +368,11 @@ void unified_physical_memory(benchmark::State& st)
 {   size_t n = size_t(st.range());
 
     for (auto _ : st)
-    {   auto sw = gynx::random::dna<gynx::sq_gen<T>>(n);
-        sw.save(fasta_filename, gynx::out::fasta());
-        gynx::sq_gen<T> sr;
+    {   auto sw = gnx::random::dna<gnx::sq_gen<T>>(n);
+        sw.save(fasta_filename, gnx::out::fasta());
+        gnx::sq_gen<T> sr;
         sr.load(fasta_filename);
-        benchmark::DoNotOptimize(gynx::valid(sr));
+        benchmark::DoNotOptimize(gnx::valid(sr));
     }
     std::remove(fasta_filename.c_str());
 
@@ -399,7 +399,7 @@ BENCHMARK_TEMPLATE(unified_physical_memory, thrust::universal_vector<char>)
 ->  Range(1<<28, 1<<29)
 ->  Unit(benchmark::kMillisecond);
 #if defined(__HIPCC__)
-BENCHMARK_TEMPLATE(unified_physical_memory, gynx::unified_vector<char>)
+BENCHMARK_TEMPLATE(unified_physical_memory, gnx::unified_vector<char>)
 ->  RangeMultiplier(2)
 ->  Range(1<<28, 1<<29)
 ->  Unit(benchmark::kMillisecond);

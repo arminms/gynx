@@ -19,8 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 //
-#ifndef _GYNX_ALGORITHMS_VALID_HPP_
-#define _GYNX_ALGORITHMS_VALID_HPP_
+#ifndef _GNX_ALGORITHMS_VALID_HPP_
+#define _GNX_ALGORITHMS_VALID_HPP_
 
 #include <algorithm>
 #include <cstdint>
@@ -35,11 +35,11 @@
 #include <hipcub/hipcub.hpp>
 #endif // __CUDACC__
 
-#include <gynx/concepts.hpp>
-#include <gynx/execution.hpp>
-#include <gynx/lut/valid.hpp>
+#include <gnx/concepts.hpp>
+#include <gnx/execution.hpp>
+#include <gnx/lut/valid.hpp>
 
-namespace gynx {
+namespace gnx {
 
 namespace detail {
 
@@ -187,7 +187,7 @@ constexpr bool valid
 }
 
 /// @brief Parallel-enabled validation using an execution policy.
-/// @tparam ExecPolicy Execution policy type (e.g., gynx::execution::seq)
+/// @tparam ExecPolicy Execution policy type (e.g., gnx::execution::seq)
 /// @tparam Iterator Forward iterator type
 /// @param policy Execution policy controlling algorithm execution
 /// @param first Iterator to the beginning of the sequence
@@ -214,7 +214,7 @@ template<typename ExecPolicy, host_resident_iterator Iterator>
 #else
 template<typename ExecPolicy, std::random_access_iterator Iterator>
 #endif
-requires gynx::is_execution_policy_v<std::decay_t<ExecPolicy>>
+requires gnx::is_execution_policy_v<std::decay_t<ExecPolicy>>
 inline bool valid
 (   ExecPolicy&& policy
 ,   Iterator first
@@ -230,19 +230,19 @@ inline bool valid
     difference_type sum = 0;
 
     // compile-time dispatch based on execution policy
-    if constexpr (std::is_same_v<std::decay_t<ExecPolicy>, gynx::execution::unsequenced_policy>)
+    if constexpr (std::is_same_v<std::decay_t<ExecPolicy>, gnx::execution::unsequenced_policy>)
     {
         #pragma omp simd reduction(+:sum)
         for (int i = 0; i < n; ++i)
             sum += table[static_cast<uint8_t>(first[i])];
     }
-    else if constexpr (std::is_same_v<std::decay_t<ExecPolicy>, gynx::execution::parallel_policy>)
+    else if constexpr (std::is_same_v<std::decay_t<ExecPolicy>, gnx::execution::parallel_policy>)
     {   // firstprivate(table) must be used once the reference is avoided
         #pragma omp parallel for default(none) reduction(+:sum) shared(first,table,n)
         for (int i = 0; i < n; ++i)
             sum += table[static_cast<uint8_t>(first[i])];
     }
-    else if constexpr (std::is_same_v<std::decay_t<ExecPolicy>, gynx::execution::parallel_unsequenced_policy>)
+    else if constexpr (std::is_same_v<std::decay_t<ExecPolicy>, gnx::execution::parallel_unsequenced_policy>)
     {
 #if defined(_WIN32)
         #pragma omp parallel for default(none) reduction(+:sum) shared(first,table,n)
@@ -412,6 +412,6 @@ inline bool valid_peptide
     );
 }
 
-} // namespace gynx
+} // namespace gnx
 
-#endif  // _GYNX_ALGORITHMS_VALID_HPP_
+#endif  // _GNX_ALGORITHMS_VALID_HPP_

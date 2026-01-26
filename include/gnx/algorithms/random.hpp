@@ -44,10 +44,10 @@
 #include <ranx/trng/fast_discrete_dist.hpp>
 #include <ranx/trng/discrete_dist.hpp>
 
-#include <gynx/concepts.hpp>
-#include <gynx/execution.hpp>
+#include <gnx/concepts.hpp>
+#include <gnx/execution.hpp>
 
-namespace gynx {
+namespace gnx {
 
 // -- uniform random sequence generation ---------------------------------------
 
@@ -219,7 +219,7 @@ template
 ,   typename Size
 >
 #endif // __CUDACC__ || __HIPCC__
-requires gynx::is_execution_policy_v<std::decay_t<ExecPolicy>>
+requires gnx::is_execution_policy_v<std::decay_t<ExecPolicy>>
 inline void rand
 (   ExecPolicy&& policy
 ,   OutputIterator out
@@ -237,13 +237,13 @@ inline void rand
     );
 
     // compile-time dispatch based on execution policy
-    if constexpr (std::is_same_v<std::decay_t<ExecPolicy>, gynx::execution::unsequenced_policy>)
+    if constexpr (std::is_same_v<std::decay_t<ExecPolicy>, gnx::execution::unsequenced_policy>)
     {
         #pragma omp simd
         for (Size i = 0; i < n; ++i)
             out[i] = static_cast<value_type>(alphabet[ndx()]);
     }
-    else if constexpr (std::is_same_v<std::decay_t<ExecPolicy>, gynx::execution::parallel_policy>)
+    else if constexpr (std::is_same_v<std::decay_t<ExecPolicy>, gnx::execution::parallel_policy>)
     {   // block splitting algorithm
         #pragma omp parallel
         {   auto tidx{omp_get_thread_num()};
@@ -257,7 +257,7 @@ inline void rand
                 out[i] = static_cast<value_type>(tl_alphabet[tl_ndx()]);
         }
     }
-    else if constexpr (std::is_same_v<std::decay_t<ExecPolicy>, gynx::execution::parallel_unsequenced_policy>)
+    else if constexpr (std::is_same_v<std::decay_t<ExecPolicy>, gnx::execution::parallel_unsequenced_policy>)
     {   // block splitting algorithm
         #pragma omp parallel
         {   auto tidx{omp_get_thread_num()};
@@ -324,7 +324,7 @@ inline Sequence dna
 // template <device_resident Sequence, typename ExecPolicy>
 // #else
 // template <sequence_container Sequence, typename ExecPolicy>
-// requires gynx::is_execution_policy_v<std::decay_t<ExecPolicy>>
+// requires gnx::is_execution_policy_v<std::decay_t<ExecPolicy>>
 // #endif
 // inline Sequence dna
 // (   ExecPolicy&& policy
@@ -358,4 +358,4 @@ inline Sequence dna
 
 } // namespace random
 
-} // namespace gynx
+} // namespace gnx
