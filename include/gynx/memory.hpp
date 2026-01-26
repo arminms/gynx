@@ -43,15 +43,40 @@ namespace gynx
 {
 
 #if defined(__HIPCC__)
-    // custom allocator for unified memory on ROCm platform
+    // custom allocator for host pinned memory on ROCm platform
     template<class T>
-    struct ManagedAllocator : thrust::device_malloc_allocator<T>
+    struct host_pinned_allocator : thrust::device_malloc_allocator<T>
     {   typedef thrust::device_ptr<T> pointer;
 
         inline pointer allocate(size_t n)
         {   T* value = 0;
-            // hipMallocManaged creates a unified buffer accessible by CPU & GPU
-            hipError_t err = hipMallocManaged(&value, n * sizeof(T));
+            // hipHostMalloc allocates pinned host memory accessible the GPU device
+            hipError_t err = hipHostMalloc(&value, n * sizeof(T));
+
+            if (err != hipSuccess) throw thrust::system_error(err, thrust::hip_category());
+            return pointer(value);
+        }
+
+        inline void deallocate(pointer ptr, size_t n)
+        {   hipError_t err = hipFree(ptr.get());
+            if (err != hipSuccess) throw thrust::system_error(err, thrust::hip_category());
+        }
+    };
+
+// Define a host pinned vector type
+template<class T>
+    using host_pinned_vector = thrust::host_vector<T, host_pinned_allocator<T>>;
+
+    // custom allocator for unified physical memory (e.g. MI300A) on ROCm platform
+    template<class T>
+    struct unified_allocator : thrust::device_malloc_allocator<T>
+    {   typedef thrust::device_ptr<T> pointer;
+
+        inline pointer allocate(size_t n)
+        {   T* value = 0;
+            // hipMalloc creates a unified buffer accessible by CPU & GPU
+            hipError_t err = hipMalloc(&value, n * sizeof(T));
+            // hipError_t err = hipMallocManaged(&value, n * sizeof(T));
             // hipError_t err = hipHostMalloc(&value, n * sizeof(T));
             // hipError_t err = hipHostAlloc(&value, n * sizeof(T));
 
@@ -67,7 +92,7 @@ namespace gynx
 
 // Define a unified vector type
 template<class T>
-    using unified_vector = thrust::host_vector<T, ManagedAllocator<T>>;
+    using unified_vector = thrust::host_vector<T, unified_allocator<T>>;
 #endif
 
 #if defined(__CUDACC__)
@@ -81,7 +106,7 @@ template<class T>
     using universal_host_pinned_vector = thrust::universal_vector<T, pinned_host_allocator<T>>;
 #elif defined(__HIPCC__)
     template <typename T>
-    using universal_host_pinned_vector = thrust::universal_vector<T>;
+    using universal_host_pinned_vector = host_pinned_vector<T>;
 #endif // __CUDACC__
 
 
