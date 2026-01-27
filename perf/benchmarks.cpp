@@ -361,10 +361,10 @@ BENCHMARK_TEMPLATE(valid_rocm, gnx::unified_vector<char>)
 #endif //__HIPCC__
 
 //----------------------------------------------------------------------------//
-// test_unified_memory()
+// benchmarks for unified virtual and physical memory
 
 template <typename T>
-void unified_physical_memory(benchmark::State& st)
+void unified_vnp_memory(benchmark::State& st)
 {   size_t n = size_t(st.range());
     auto sw = gnx::random::dna<gnx::sq_gen<T>>(n);
     sw.save(fasta_filename, gnx::out::fasta());
@@ -372,7 +372,7 @@ void unified_physical_memory(benchmark::State& st)
     for (auto _ : st)
     {   gnx::sq_gen<T> sr;
         sr.load(fasta_filename);
-        benchmark::DoNotOptimize(gnx::valid(sr));
+        benchmark::DoNotOptimize(gnx::valid(gnx::execution::par_unseq, sr));
     }
     std::remove(fasta_filename.c_str());
 
@@ -381,14 +381,14 @@ void unified_physical_memory(benchmark::State& st)
     ,   benchmark::Counter::kIsIterationInvariantRate
     );
 }
-BENCHMARK_TEMPLATE(unified_physical_memory, std::vector<char>)
+BENCHMARK_TEMPLATE(unified_vnp_memory, std::vector<char>)
 ->  RangeMultiplier(2)
-->  Range(1<<28, 1<<29)
+->  Range(1<<25, 1<<28)
 ->  Unit(benchmark::kMillisecond);
 
 #if defined(__CUDACC__)
 template <class T>
-void unified_physical_memory_cuda(benchmark::State& st)
+void unified_vnp_memory_cuda(benchmark::State& st)
 {   size_t n = size_t(st.range());
 
     cudaEvent_t start, stop;
@@ -420,26 +420,26 @@ void unified_physical_memory_cuda(benchmark::State& st)
     );
 }
 
-BENCHMARK_TEMPLATE(unified_physical_memory_cuda, thrust::host_vector<char>)
+BENCHMARK_TEMPLATE(unified_vnp_memory_cuda, thrust::host_vector<char>)
 ->  RangeMultiplier(2)
-->  Range(1<<28, 1<<29)
+->  Range(1<<25, 1<<28)
 ->  UseManualTime()
 ->  Unit(benchmark::kMillisecond);
-BENCHMARK_TEMPLATE(unified_physical_memory_cuda, thrust::device_vector<char>)
+BENCHMARK_TEMPLATE(unified_vnp_memory_cuda, thrust::device_vector<char>)
 ->  RangeMultiplier(2)
-->  Range(1<<28, 1<<29)
+->  Range(1<<25, 1<<28)
 ->  UseManualTime()
 ->  Unit(benchmark::kMillisecond);
-BENCHMARK_TEMPLATE(unified_physical_memory_cuda, thrust::universal_vector<char>)
+BENCHMARK_TEMPLATE(unified_vnp_memory_cuda, thrust::universal_vector<char>)
 ->  RangeMultiplier(2)
-->  Range(1<<28, 1<<29)
+->  Range(1<<25, 1<<28)
 ->  UseManualTime()
 ->  Unit(benchmark::kMillisecond);
 #endif //__CUDACC__
 
 #if defined(__HIPCC__)
 template <class T>
-void unified_physical_memory_rocm(benchmark::State& st)
+void unified_vnp_memory_rocm(benchmark::State& st)
 {   size_t n = size_t(st.range());
 
     hipEvent_t start, stop;
@@ -471,24 +471,24 @@ void unified_physical_memory_rocm(benchmark::State& st)
     );
 }
 
-BENCHMARK_TEMPLATE(unified_physical_memory_rocm, thrust::host_vector<char>)
+BENCHMARK_TEMPLATE(unified_vnp_memory_rocm, thrust::host_vector<char>)
 ->  RangeMultiplier(2)
-->  Range(1<<28, 1<<29)
+->  Range(1<<25, 1<<28)
 ->  UseManualTime()
 ->  Unit(benchmark::kMillisecond);
-BENCHMARK_TEMPLATE(unified_physical_memory_rocm, thrust::device_vector<char>)
+BENCHMARK_TEMPLATE(unified_vnp_memory_rocm, thrust::device_vector<char>)
 ->  RangeMultiplier(2)
-->  Range(1<<28, 1<<29)
+->  Range(1<<25, 1<<28)
 ->  UseManualTime()
 ->  Unit(benchmark::kMillisecond);
-BENCHMARK_TEMPLATE(unified_physical_memory_rocm, thrust::universal_vector<char>)
+BENCHMARK_TEMPLATE(unified_vnp_memory_rocm, thrust::universal_vector<char>)
 ->  RangeMultiplier(2)
-->  Range(1<<28, 1<<29)
+->  Range(1<<25, 1<<28)
 ->  UseManualTime()
 ->  Unit(benchmark::kMillisecond);
-BENCHMARK_TEMPLATE(unified_physical_memory_rocm, gnx::unified_vector<char>)
+BENCHMARK_TEMPLATE(unified_vnp_memory_rocm, gnx::unified_vector<char>)
 ->  RangeMultiplier(2)
-->  Range(1<<28, 1<<29)
+->  Range(1<<25, 1<<28)
 ->  Unit(benchmark::kMillisecond);
 #endif //__HIPCC__
 
