@@ -30,9 +30,24 @@
 const uint64_t seed_pi{3141592654};
 
 #if defined(__CUDACC__)
-TEMPLATE_TEST_CASE( "gnx::sq", "[class][cuda]", std::vector<char>, thrust::host_vector<char>, thrust::device_vector<char>, thrust::universal_vector<char>)
+TEMPLATE_TEST_CASE
+(   "gnx::sq"
+,   "[class][cuda]"
+,   std::vector<char>
+,   thrust::host_vector<char>
+,   thrust::device_vector<char>
+,   thrust::universal_vector<char>
+)
 #elif defined(__HIPCC__)
-TEMPLATE_TEST_CASE( "gnx::sq", "[class][rocm]", std::vector<char>, thrust::host_vector<char>, thrust::device_vector<char>, thrust::universal_vector<char>, gnx::unified_vector<char>)
+TEMPLATE_TEST_CASE
+(   "gnx::sq"
+,   "[class][rocm]"
+,   std::vector<char>
+,   thrust::host_vector<char>
+,   thrust::device_vector<char>
+,   thrust::universal_vector<char>
+,   gnx::unified_vector<char>
+)
 #else
 TEMPLATE_TEST_CASE( "gnx::sq", "[class]", std::vector<char>)
 #endif
@@ -41,8 +56,6 @@ TEMPLATE_TEST_CASE( "gnx::sq", "[class]", std::vector<char>)
     gnx::sq_gen<T> s{"ACGT"};
     std::string t{"ACGT"}, u{"acgt"}, v{"ACGT "};
     s["test-int"] = -33;
-
-    // thrust::device_vector<char> dv{s.begin(), s.end()};
 
 // -- comparison operators -----------------------------------------------------
 
@@ -321,8 +334,23 @@ TEMPLATE_TEST_CASE( "gnx::sq", "[class]", std::vector<char>)
     }
 }
 
-#if defined(__CUDACC__) || defined(__HIPCC__)
-TEMPLATE_TEST_CASE( "gnx::sq_view", "[view]", std::vector<char>, thrust::host_vector<char>, thrust::universal_vector<char>)
+#if defined(__CUDACC__)
+TEMPLATE_TEST_CASE
+(   "gnx::sq_view"
+,   "[view][cuda]"
+,   std::vector<char>
+,   thrust::host_vector<char>
+,   thrust::universal_vector<char>
+)
+#elif defined(__HIPCC__)
+TEMPLATE_TEST_CASE
+(   "gnx::sq_view"
+,   "[view][rocm]"
+,   std::vector<char>
+,   thrust::host_vector<char>
+,   thrust::universal_vector<char>
+,   gnx::unified_vector<char>
+)
 #else
 TEMPLATE_TEST_CASE( "gnx::sq_view", "[view]", std::vector<char>)
 #endif //__CUDACC__
@@ -437,9 +465,24 @@ TEMPLATE_TEST_CASE( "gnx::sq_view", "[view]", std::vector<char>)
 }
 
 #if defined(__CUDACC__)
-TEMPLATE_TEST_CASE( "gnx::io::fastaqz", "[io][in][out][cuda]", std::vector<char>, thrust::host_vector<char>, thrust::device_vector<char>, thrust::universal_vector<char>)
+TEMPLATE_TEST_CASE
+(   "gnx::io::fastaqz"
+,   "[io][in][out][cuda]"
+,   std::vector<char>
+,   thrust::host_vector<char>
+,   thrust::device_vector<char>
+,   thrust::universal_vector<char>
+)
 #elif defined(__HIPCC__)
-TEMPLATE_TEST_CASE( "gnx::io::fastaqz", "[io][in][out][rocm]", std::vector<char>, thrust::host_vector<char>, thrust::device_vector<char>, thrust::universal_vector<char>, gnx::unified_vector<char>)
+TEMPLATE_TEST_CASE
+(   "gnx::io::fastaqz"
+,   "[io][in][out][rocm]"
+,   std::vector<char>
+,   thrust::host_vector<char>
+,   thrust::device_vector<char>
+,   thrust::universal_vector<char>
+,   gnx::unified_vector<char>
+)
 #else
 TEMPLATE_TEST_CASE( "gnx::io::fastaqz", "[io][in][out]", std::vector<char>)
 #endif
@@ -514,9 +557,22 @@ TEMPLATE_TEST_CASE( "gnx::io::fastaqz", "[io][in][out]", std::vector<char>)
 }
 
 #if defined(__CUDACC__)
-TEMPLATE_TEST_CASE( "gnx::valid", "[algorithm][valid][cuda]", std::vector<char>, thrust::host_vector<char>, thrust::universal_vector<char>)
+TEMPLATE_TEST_CASE
+(   "gnx::valid"
+,   "[algorithm][valid][cuda]"
+,   std::vector<char>
+,   thrust::host_vector<char>
+,   thrust::universal_vector<char>
+)
 #elif defined(__HIPCC__)
-TEMPLATE_TEST_CASE( "gnx::valid", "[algorithm][valid][rocm]", std::vector<char>, thrust::host_vector<char>, thrust::universal_vector<char>, gnx::unified_vector<char>)
+TEMPLATE_TEST_CASE
+(   "gnx::valid"
+,   "[algorithm][valid][rocm]"
+,   std::vector<char>
+,   thrust::host_vector<char>
+,   thrust::universal_vector<char>
+,   gnx::unified_vector<char>
+)
 #else
 TEMPLATE_TEST_CASE( "gnx::valid", "[algorithm][valid]", std::vector<char>)
 #endif //__CUDACC__
@@ -696,7 +752,12 @@ TEMPLATE_TEST_CASE( "gnx::valid", "[algorithm][valid]", std::vector<char>)
 }
 
 #if defined(__CUDACC__)
-TEMPLATE_TEST_CASE( "gnx::valid::device", "[algorithm][valid][cuda]", thrust::device_vector<char>, thrust::universal_vector<char>)
+TEMPLATE_TEST_CASE
+(   "gnx::valid::device"
+,   "[algorithm][valid][cuda]"
+,   thrust::device_vector<char>
+,   thrust::universal_vector<char>
+)
 {   typedef TestType T;
 
     gnx::sq_gen<T> s;
@@ -723,7 +784,13 @@ TEMPLATE_TEST_CASE( "gnx::valid::device", "[algorithm][valid][cuda]", thrust::de
 #endif //__CUDACC__
 
 #if defined(__HIPCC__)
-TEMPLATE_TEST_CASE( "gnx::valid::device", "[algorithm][valid][rocm]", thrust::device_vector<char>, thrust::universal_vector<char>, gnx::unified_vector<char>)
+TEMPLATE_TEST_CASE
+(   "gnx::valid::device"
+,   "[algorithm][valid][rocm]"
+,   thrust::device_vector<char>
+,   thrust::universal_vector<char>
+,   gnx::unified_vector<char>
+)
 {   typedef TestType T;
 
     gnx::sq_gen<T> s;
@@ -750,9 +817,19 @@ TEMPLATE_TEST_CASE( "gnx::valid::device", "[algorithm][valid][rocm]", thrust::de
 #endif //__HIPCC__
 
 #if defined(__CUDACC__)
-TEMPLATE_TEST_CASE( "gnx::random", "[algorithm][random][cuda]", std::vector<char>, thrust::host_vector<char>)
+TEMPLATE_TEST_CASE
+(   "gnx::random"
+,   "[algorithm][random][cuda]"
+,   std::vector<char>
+,   thrust::host_vector<char>
+)
 #elif defined(__HIPCC__)
-TEMPLATE_TEST_CASE( "gnx::random", "[algorithm][random][rocm]", std::vector<char>, thrust::host_vector<char>)
+TEMPLATE_TEST_CASE
+(   "gnx::random"
+,   "[algorithm][random][rocm]"
+,   std::vector<char>
+,   thrust::host_vector<char>
+)
 #else
 TEMPLATE_TEST_CASE( "gnx::random", "[algorithm][random]", std::vector<char>)
 #endif //__CUDACC__ || __HIPCC__
@@ -794,7 +871,12 @@ TEMPLATE_TEST_CASE( "gnx::random", "[algorithm][random]", std::vector<char>)
 }
 
 #if defined(__CUDACC__)
-TEMPLATE_TEST_CASE( "gnx::random::device", "[algorithm][random][cuda]", thrust::device_vector<char>, thrust::universal_vector<char> )
+TEMPLATE_TEST_CASE
+(   "gnx::random::device"
+,   "[algorithm][random][cuda]"
+,   thrust::device_vector<char>
+,   thrust::universal_vector<char>
+)
 {   typedef TestType T;
     gnx::sq_gen<T> s(20);
     const auto N{10'000};
@@ -822,7 +904,13 @@ TEMPLATE_TEST_CASE( "gnx::random::device", "[algorithm][random][cuda]", thrust::
 #endif //__CUDACC__
 
 #if defined(__HIPCC__)
-TEMPLATE_TEST_CASE( "gnx::random::device", "[algorithm][random][rocm]", thrust::device_vector<char>, thrust::universal_vector<char>, gnx::unified_vector<char> )
+TEMPLATE_TEST_CASE
+(   "gnx::random::device"
+,   "[algorithm][random][rocm]"
+,   thrust::device_vector<char>
+,   thrust::universal_vector<char>
+,   gnx::unified_vector<char>
+)
 {   typedef TestType T;
     gnx::sq_gen<T> s(20);
     const auto N{10'000};
