@@ -1,23 +1,5 @@
-//
+// SPDX-License-Identifier: MIT
 // Copyright (c) 2025 Armin Sobhani
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
 //
 #pragma once
 
@@ -110,12 +92,6 @@ inline void rand_device
         stream = policy.stream();
 
     thrust::device_vector<char> d_alphabet(alphabet.begin(), alphabet.end());
-    // thrust::copy
-    // (   thrust::cuda::par.on(stream)
-    // ,   alphabet.begin()
-    // ,   alphabet.end()
-    // ,   d_alphabet.begin()
-    // );
 
     int device;
 #if defined(__HIPCC__)
@@ -139,6 +115,13 @@ inline void rand_device
 
 } // end detail namespace
 
+/// @brief Generate a random sequence from a given alphabet.
+/// @tparam OutputIterator Output iterator type
+/// @tparam Size Size type for the number of characters to generate
+/// @param out Output iterator to write the random sequence
+/// @param n Number of characters to generate
+/// @param alphabet String view of the alphabet to sample from
+/// @param seed Optional seed for the random number generator (default: current time)
 #if defined(__CUDACC__)
 template
 <   device_resident_iterator OutputIterator
@@ -192,6 +175,15 @@ inline void rand
         out[i] = static_cast<value_type>(alphabet[ndx(r)]);
 }
 
+/// @brief Generate a random sequence from a given alphabet using an execution policy.
+/// @tparam ExecPolicy Execution policy type (e.g., gnx::execution::seq)
+/// @tparam OutputIterator Output iterator type
+/// @tparam Size Size type for the number of characters to generate
+/// @param policy Execution policy controlling algorithm execution
+/// @param out Output iterator to write the random sequence
+/// @param n Number of characters to generate
+/// @param alphabet String view of the alphabet to sample from
+/// @param seed Optional seed for the random number generator (default: current time)
 #if defined(__CUDACC__) || defined(__HIPCC__)
 template
 <   typename ExecPolicy
@@ -278,8 +270,20 @@ inline void rand
 
 // -- weighted random sequence generation ---------------------------------------
 
+/// @brief Generate a random sequence from a given alphabet with weights.
+/// @tparam OutputIterator Output iterator type
+/// @tparam Size Size type for the number of characters to generate
+/// @param out Output iterator to write the random sequence
+/// @param n Number of characters to generate
+/// @param alphabet String view of the alphabet to sample from
+/// @param weights Weights corresponding to each character in the alphabet
+/// @param seed Optional seed for the random number generator (default: current time)
 template
+#if defined(__CUDACC__) || defined(__HIPCC__)
+<   host_resident_iterator OutputIterator
+#else
 <   std::contiguous_iterator OutputIterator
+#endif
 ,   typename Size
 >
 inline void rand
@@ -308,7 +312,12 @@ inline void rand
 }
 
 namespace random {
-
+///
+/// @brief Generate a random DNA sequence.
+/// @tparam Sequence Sequence container type
+/// @param length Length of the sequence to generate
+/// @param seed Optional seed for the random number generator (default: current time)
+/// @return Randomly generated DNA sequence
 template <sequence_container Sequence>
 inline Sequence dna
 (   std::size_t length
@@ -319,24 +328,42 @@ inline Sequence dna
     rand(seq.begin(), length, alphabet, seed);
     return seq;
 }
-
-// #if defined(__CUDACC__) || defined(__HIPCC__)
-// template <device_resident Sequence, typename ExecPolicy>
-// #else
-// template <sequence_container Sequence, typename ExecPolicy>
-// requires gnx::is_execution_policy_v<std::decay_t<ExecPolicy>>
-// #endif
-// inline Sequence dna
-// (   ExecPolicy&& policy
-// ,   std::size_t length
-// ,   std::uint64_t seed = 0
-// )
-// {   const std::string_view alphabet = "ACGT";
-//     Sequence seq(length);
-//     rand(std::forward<ExecPolicy>(policy), seq.begin(), length, alphabet, seed);
-//     return seq;
-// }
-
+/// @brief Generate a random RNA sequence.
+/// @tparam Sequence Sequence container type
+/// @param length Length of the sequence to generate
+/// @param seed Optional seed for the random number generator (default: current time)
+/// @return Randomly generated RNA sequence
+template <sequence_container Sequence>
+inline Sequence rna
+(   std::size_t length
+,   std::uint64_t seed = 0
+)
+{   const std::string_view alphabet = "ACGU";
+    Sequence seq(length);
+    rand(seq.begin(), length, alphabet, seed);
+    return seq;
+}
+/// @brief Generate a random peptide sequence.
+/// @tparam Sequence Sequence container type
+/// @param length Length of the sequence to generate
+/// @param seed Optional seed for the random number generator (default: current time)
+/// @return Randomly generated peptide sequence
+template <sequence_container Sequence>
+inline Sequence peptide
+(   std::size_t length
+,   std::uint64_t seed = 0
+)
+{   const std::string_view alphabet = "ACDEFGHIKLMNPQRSTVWY";
+    Sequence seq(length);
+    rand(seq.begin(), length, alphabet, seed);
+    return seq;
+}
+/// @brief Generate a random DNA sequence with specified GC content.
+/// @tparam Sequence Sequence container type
+/// @param length Length of the sequence to generate
+/// @param gc_content Desired GC content percentage (0-100)
+/// @param seed Optional seed for the random number generator (default: current time)
+/// @return Randomly generated DNA sequence with specified GC content
 template <sequence_container Sequence>
 inline Sequence dna
 (   std::size_t length
