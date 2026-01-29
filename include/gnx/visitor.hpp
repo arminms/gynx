@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025 Armin Sobhani
 //
-#ifndef _GNX_VISITOR_HPP_
-#define _GNX_VISITOR_HPP_
+#pragma once
 
 #include <iostream>
 #include <iomanip>
@@ -149,5 +148,3 @@ inline void register_td_scan_visitor(std::string type, const F& f)
 
 
 }   // end gnx namespace
-
-#endif  //_GNX_VISITOR_HPP_

@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025 Armin Sobhani
 //
-#ifndef _GNX_SQ_HPP_
-#define _GNX_SQ_HPP_
+#pragma once
 
 #include <concepts>
 #include <sstream>
@@ -554,5 +553,3 @@ public:
 
     gnx::sq operator""_sq (const char* str, std::size_t len)
     {   return gnx::sq(str);   }
-
-#endif  //_GNX_SQ_HPP_

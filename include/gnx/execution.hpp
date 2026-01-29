@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025 Armin Sobhani
 //
-#ifndef _GNX_EXECUTION_HPP_
-#define _GNX_EXECUTION_HPP_
+#pragma once
 
 #include <type_traits>
 
@@ -99,5 +98,3 @@ template<typename T>
 inline constexpr bool is_execution_policy_v = is_execution_policy<T>::value;
 
 } // namespace gnx
-
-#endif // _GNX_EXECUTION_HPP_

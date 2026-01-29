@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025 Armin Sobhani
 //
-#ifndef _GNX_ALGORITHMS_VALID_HPP_
-#define _GNX_ALGORITHMS_VALID_HPP_
+#pragma once
 
 #include <algorithm>
 #include <cstdint>
@@ -395,5 +394,3 @@ inline bool valid_peptide
 }
 
 } // namespace gnx
-
-#endif  // _GNX_ALGORITHMS_VALID_HPP_

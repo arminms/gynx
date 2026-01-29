@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025 Armin Sobhani
 //
-#ifndef _GNX_MEMORY_HPP_
-#define _GNX_MEMORY_HPP_
+#pragma once
 
 #include <cstdlib>
 #include <memory>
@@ -357,5 +356,3 @@ template<class T>
 #endif // _WIN32
 
 }  // namespace gnx
-
-#endif  //_GNX_MEMORY_HPP_

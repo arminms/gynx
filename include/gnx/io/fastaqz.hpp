@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025 Armin Sobhani
 //
-#ifndef _GNX_IO_FASTAQZ_HPP_
-#define _GNX_IO_FASTAQZ_HPP_
+#pragma once
 
 #include <string>
 #include <string_view>
@@ -468,4 +467,3 @@ private:
 }   // end gnx::out namespace
 }   // end gnx namespace
 
-#endif  //_GNX_IO_FASTAQZ_HPP_

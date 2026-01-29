@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025 Armin Sobhani
 //
-#ifndef _GNX_SQ_VIEW_HPP_
-#define _GNX_SQ_VIEW_HPP_
+#pragma once
 
 #include <algorithm>
 #include <cstddef>
@@ -210,5 +209,3 @@ namespace std::ranges {
     template<typename Container>
     inline constexpr bool enable_view<gnx::sq_view_gen<Container>> = true;
 }
-
-#endif  // _GNX_SQ_VIEW_HPP_

@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025 Armin Sobhani
 //
-#ifndef _GNX_CONCEPTS_HPP_
-#define _GNX_CONCEPTS_HPP_
+#pragma once
 
 #include <type_traits>
 #include <concepts>
@@ -83,5 +82,3 @@ concept has_stream_member = requires(T a)
 #endif // __CUDACC__
 
 } // namespace gnx
-
-#endif // _GNX_CONCEPTS_HPP_
