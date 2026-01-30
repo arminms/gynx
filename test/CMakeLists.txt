@@ -33,7 +33,7 @@ add_executable(unit_tests unit_tests.cpp)
 
 if(CUDAToolkit_FOUND)
   set_source_files_properties(unit_tests.cpp PROPERTIES LANGUAGE CUDA)
-  target_compile_options(unit_tests INTERFACE
+  target_compile_options(unit_tests PRIVATE
     $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>
     $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:CUDA>>:-G;-src-in-ptx>
   )

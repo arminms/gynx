@@ -8,7 +8,7 @@ add_executable(benchmarks benchmarks.cpp)
 
 if(CUDAToolkit_FOUND)
   set_source_files_properties(benchmarks.cpp PROPERTIES LANGUAGE CUDA)
-  target_compile_options(benchmarks INTERFACE
+  target_compile_options(benchmarks PRIVATE
     $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>
     $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:CUDA>>:-G;-src-in-ptx>
   )
