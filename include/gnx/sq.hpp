@@ -265,14 +265,15 @@ public:
     const_reference operator[] (size_type pos) const
     {   return _sq[pos];   }
 
-// -- subseq operator ----------------------------------------------------------
+// -- view operator ------------------------------------------------------------
     ///
-    /// Returns a subsequence starting at position @a pos with length @a count.
+    /// Returns a non-owning view (subsequence) starting at position @a pos with
+    /// length @a count.
     /// If @a count is gnx::sq::npos or exceeds the sequence length from
     /// @a pos, the subsequence extends to the end of the sequence.
 #if defined(__CUDACC__) || defined(__HIPCC__)
     sq_gen<Container> operator()
-    (   size_type pos
+    (   size_type pos = 0
     ,   size_type count = npos
     )   const
     requires
@@ -288,7 +289,7 @@ public:
     }
 #endif
     sq_view_gen<Container> operator()
-    (   size_type pos
+    (   size_type pos = 0
     ,   size_type count = npos
     )   const
     {   sq_view_gen<Container> sv(*this);
