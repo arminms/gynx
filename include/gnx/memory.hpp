@@ -162,6 +162,7 @@ template<class T>
     {   Normal = sizeof(void*),
         SSE    = 16,
         AVX    = 32,
+        AVX512 = 64
     };
 
     namespace detail
