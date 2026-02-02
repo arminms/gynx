@@ -24,6 +24,18 @@ namespace gnx {
 
 namespace detail {
 
+#pragma omp declare simd uniform(table) simdlen(16)
+template<typename T, typename LutT>
+inline LutT valid_value(T v, const LutT* table)
+{   return table[static_cast<LutT>(v)];
+}
+
+#pragma omp declare simd uniform(v, table) linear(i:1) simdlen(16)
+template<typename T, typename SizeT, typename LutT>
+inline LutT valid_func(const T* v, SizeT i, LutT r, const LutT* table)
+{   return r |= valid_value(v[i], table);
+}
+
 #if defined(__CUDACC__) || defined(__HIPCC__)
 namespace kernel {
 
@@ -160,11 +172,11 @@ constexpr bool valid
 ,   Iterator last
 ,   bool nucleotide = false
 )
-{   const auto& table = nucleotide ? lut::valid_nucleotide : lut::valid_peptide;
-    std::size_t sum = 0;
+{   decltype(lut::valid_peptide)::value_type result = 0;
+    const auto& table = nucleotide ? lut::valid_nucleotide : lut::valid_peptide;
     while (first != last)
-        sum += table[static_cast<uint8_t>(*first++)];
-    return sum == 0;
+        result |= table[static_cast<uint8_t>(*first++)];
+    return result == 0;
 }
 
 /// @brief Parallel-enabled validation using an execution policy.
@@ -202,41 +214,38 @@ inline bool valid
 ,   Iterator last
 ,   bool nucleotide = false
 )
-{   typedef typename std::iterator_traits<Iterator>::value_type value_type;
-    typedef typename std::iterator_traits<Iterator>::difference_type difference_type;
-
+{   typedef typename std::iterator_traits<Iterator>::difference_type difference_type;
+    decltype(lut::valid_nucleotide)::value_type result = 0;
     const auto& table = nucleotide ? lut::valid_nucleotide : lut::valid_peptide;
-
     difference_type n = last - first;
-    difference_type sum = 0;
 
     // compile-time dispatch based on execution policy
     if constexpr (std::is_same_v<std::decay_t<ExecPolicy>, gnx::execution::unsequenced_policy>)
     {
-        #pragma omp simd reduction(+:sum)
+        #pragma omp simd
         for (int i = 0; i < n; ++i)
-            sum += table[static_cast<uint8_t>(first[i])];
+            result = detail::valid_func(&first[0], i, result, table.data());
     }
     else if constexpr (std::is_same_v<std::decay_t<ExecPolicy>, gnx::execution::parallel_policy>)
     {   // firstprivate(table) must be used once the reference is avoided
-        #pragma omp parallel for default(none) reduction(+:sum) shared(first,table,n)
+        #pragma omp parallel for default(none) reduction(|:result) shared(first,table,n)
         for (int i = 0; i < n; ++i)
-            sum += table[static_cast<uint8_t>(first[i])];
+            result = detail::valid_func(&first[0], i, result, table.data());
     }
     else if constexpr (std::is_same_v<std::decay_t<ExecPolicy>, gnx::execution::parallel_unsequenced_policy>)
     {
 #if defined(_WIN32)
-        #pragma omp parallel for default(none) reduction(+:sum) shared(first,table,n)
+        #pragma omp parallel for default(none) reduction(|:result) shared(first,table,n)
 #else
-        #pragma omp parallel for simd default(none) reduction(+:sum) shared(first,table,n)
+        #pragma omp parallel for simd default(none) reduction(|:result) shared(first,table,n)
 #endif // _WIN32
         for (int i = 0; i < n; ++i)
-            sum += table[static_cast<uint8_t>(first[i])];
+            result = detail::valid_func(&first[0], i, result, table.data());
     }
     else
         return valid(first, last, nucleotide);
 
-    return sum == 0;
+    return result == 0;
 }
 
 /// @brief Check if all characters in a sequence range are valid.

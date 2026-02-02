@@ -11,7 +11,7 @@
 using namespace gnx::execution;
 
 template<typename T>
-using aligned_vector = std::vector<T, gnx::aligned_allocator<T,  gnx::Alignment::SSE>>;
+using aligned_vector = std::vector<T, gnx::aligned_allocator<T, gnx::Alignment::AVX512>>;
 
 const uint64_t seed_pi{3141592654};
 const std::string fasta_filename{"perf_data.fa"};
@@ -267,10 +267,10 @@ BENCHMARK_TEMPLATE2(valid, std::vector<char>, unsequenced_policy)
 ->  RangeMultiplier(2)
 ->  Range(1<<25, 1<<28)
 ->  Unit(benchmark::kMillisecond);
-// BENCHMARK_TEMPLATE2(valid, aligned_vector<char>, unsequenced_policy)
-// ->  RangeMultiplier(2)
-// ->  Range(1<<25, 1<<28)
-// ->  Unit(benchmark::kMillisecond);
+BENCHMARK_TEMPLATE2(valid, aligned_vector<char>, unsequenced_policy)
+->  RangeMultiplier(2)
+->  Range(1<<25, 1<<28)
+->  Unit(benchmark::kMillisecond);
 BENCHMARK_TEMPLATE2(valid, std::vector<char>, parallel_policy)
 ->  RangeMultiplier(2)
 ->  Range(1<<25, 1<<28)
@@ -281,11 +281,11 @@ BENCHMARK_TEMPLATE2(valid, std::vector<char>, parallel_unsequenced_policy)
 ->  Range(1<<25, 1<<28)
 ->  UseRealTime()
 ->  Unit(benchmark::kMillisecond);
-// BENCHMARK_TEMPLATE2(valid, aligned_vector<char>, parallel_unsequenced_policy)
-// ->  RangeMultiplier(2)
-// ->  Range(1<<25, 1<<28)
-// ->  UseRealTime()
-// ->  Unit(benchmark::kMillisecond);
+BENCHMARK_TEMPLATE2(valid, aligned_vector<char>, parallel_unsequenced_policy)
+->  RangeMultiplier(2)
+->  Range(1<<25, 1<<28)
+->  UseRealTime()
+->  Unit(benchmark::kMillisecond);
 #if defined(__HIPCC__)
 BENCHMARK_TEMPLATE2(valid, gnx::unified_vector<char>, sequenced_policy)
 ->  RangeMultiplier(2)
