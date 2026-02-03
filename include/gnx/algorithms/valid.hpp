@@ -24,7 +24,11 @@ namespace gnx {
 
 namespace detail {
 
+#if defined(_WIN32)
+#pragma omp simd uniform(v, table) linear(i:1)
+#else
 #pragma omp declare simd uniform(v, table) linear(i:1)
+#endif
 template<typename T, typename SizeT, typename LutT>
 inline LutT valid_func(const T* v, SizeT i, const LutT* table)
 {   return table[static_cast<LutT>(v[i])];
