@@ -23,6 +23,8 @@ kernelspec:
 #include <gnx/sq_view.hpp>
 #include <gnx/io/fastaqz.hpp>
 #include <gnx/algorithms/valid.hpp>
+#include <gnx/algorithms/random.hpp>
+#include <gnx/algorithms/local_align.hpp>
 ```
 
 Making a biological sequence in Gnx is easy:
@@ -223,4 +225,35 @@ gnx::valid_nucleotide(gnx::execution::par, s);
 ```{code-cell} cpp
 %%timeit
 gnx::valid_nucleotide(gnx::execution::par_unseq, s);
+```
+### local_align() algorithm
+```{code-cell} cpp
+void print_alignment(const gnx::alignment_result& result)
+{   std::cout << "Alignment Score: " << result.score << "\n";
+    std::cout << "Position: (" << result.max_i << ", " << result.max_j << ")\n";
+    std::cout << "Aligned Sequence 1: " << result.aligned_seq1 << "\n";
+    std::cout << "Aligned Sequence 2: " << result.aligned_seq2 << "\n";
+    
+    // Print alignment visualization
+    std::cout << "Alignment:\n";
+    std::cout << "  " << result.aligned_seq1 << "\n";
+    std::cout << "  ";
+    for (size_t i = 0; i < result.aligned_seq1.length(); ++i)
+    {   if (result.aligned_seq1[i] == result.aligned_seq2[i])
+            std::cout << '|';
+        else if (result.aligned_seq1[i] == '-' || result.aligned_seq2[i] == '-')
+            std::cout << ' ';
+        else
+            std::cout << 'x';
+    }
+    std::cout << "\n  " << result.aligned_seq2 << "\n";
+    std::cout << std::endl;
+}
+```
++++
+```{code-cell} cpp
+auto s = gnx::random::dna<gnx::sq>(1000);
+auto t = gnx::random::dna<gnx::sq>(50);
+auto result = gnx::local_align(s, t);
+print_alignment(result);
 ```
