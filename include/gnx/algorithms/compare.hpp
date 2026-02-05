@@ -44,11 +44,7 @@ __global__ void compare_kernel
 ,   ResultT* d_out
 ,   SizeT n
 )
-{   // allocate shared memory for the lookup table
-    // (No LUT needed for compare, but keeping structure similar if needed later)
-
-    int tid = threadIdx.x;
-
+{
 #if defined(__HIPCC__)
     typedef hipcub::BlockReduce<ResultT, BLOCK_THREADS> BlockReduceT;
 #else
@@ -58,25 +54,24 @@ __global__ void compare_kernel
     __shared__ typename BlockReduceT::TempStorage temp_storage;
 
     ResultT local_result = 0;
-    auto to_upper = [](auto c) { return (c >= 'a' && c <= 'z') ? c - 32 : c; };
 
     for (SizeT i = 0; i < ITEMS_PER_THREAD; ++i)
     {   // thread Coarsening loop
         SizeT idx
         =   static_cast<SizeT>(blockIdx.x)
         *   (BLOCK_THREADS * ITEMS_PER_THREAD)
-        +   tid
+        +   threadIdx.x
         *   ITEMS_PER_THREAD
         +   i
         ;
         if (idx < n)
-            local_result |= (to_upper(d_in1[idx]) != to_upper(d_in2[idx]));
+            local_result |= (((d_in1[idx] ^ d_in2[idx]) & 0xDF ) != 0);
     }
 
     // block reduction (only thread 0 returns the valid aggregate)
     // Reduce logical OR of mismatches. If 0, then all match.
     ResultT block_result = BlockReduceT(temp_storage).Reduce(local_result, thrust::logical_or<ResultT>());
-    if (tid == 0)
+    if (threadIdx.x == 0)
         d_out[blockIdx.x] = block_result;
 }
 
