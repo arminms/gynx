@@ -29,12 +29,12 @@ enum class alignment_direction : uint8_t
 
 /// @brief Result structure for local alignment
 struct alignment_result
-{   int score;                                      ///< Alignment score
-    std::size_t max_i;                              ///< Row index of maximum score
-    std::size_t max_j;                              ///< Column index of maximum score
-    std::vector<alignment_direction> traceback;     ///< Traceback path
-    std::string aligned_seq1;                       ///< First aligned sequence (with gaps)
-    std::string aligned_seq2;                       ///< Second aligned sequence (with gaps)
+{   int score;                                  ///< Alignment score
+    std::size_t max_i;                          ///< Row index of maximum score
+    std::size_t max_j;                          ///< Column index of maximum score
+    std::vector<alignment_direction> traceback; ///< Traceback path
+    std::string aligned_seq1;                   ///< First aligned sequence (with gaps)
+    std::string aligned_seq2;                   ///< Second aligned sequence (with gaps)
 };
 
 namespace detail {
@@ -51,11 +51,7 @@ inline constexpr int default_score
 ,   int match = 2
 ,   int mismatch = -1
 )
-{   // Convert to uppercase for comparison
-    // char a_upper = (a >= 'a' && a <= 'z') ? a - 32 : a;
-    // char b_upper = (b >= 'a' && b <= 'z') ? b - 32 : b;
-    // return (a_upper == b_upper) ? match : mismatch;
-    return ((a ^ b) & 0xDF) == 0 ? match : mismatch;
+{   return ((a ^ b) & 0xDF) == 0 ? match : mismatch;
 }
 
 /// @brief Perform traceback from maximum score position
@@ -223,7 +219,11 @@ alignment_result local_align
 /// @param subst_matrix Substitution matrix (e.g., BLOSUM62, PAM250)
 /// @param gap_penalty Penalty for gap insertion (default -8)
 /// @return alignment_result containing score, positions, and aligned sequences
-template<std::input_iterator Iterator1, std::input_iterator Iterator2, typename SubMatrix>
+template
+<   std::input_iterator Iterator1
+,   std::input_iterator Iterator2
+,   typename SubMatrix
+>
 alignment_result local_align
 (   Iterator1 seq1_first
 ,   Iterator1 seq1_last
@@ -307,28 +307,40 @@ alignment_result local_align
     return {max_score, max_i, max_j, path, aligned1, aligned2};
 }
 
-/// @brief Perform Smith-Waterman local alignment between two sequence ranges
-/// (convenience wrapper)
+/// @brief Perform Smith-Waterman local alignment between two nucleotide
+/// sequence ranges (convenience wrapper)
 /// @tparam Range1 Range type for first sequence
 /// @tparam Range2 Range type for second sequence
 /// @param seq1 The first sequence range
 /// @param seq2 The second sequence range
+/// @param match Score for matching characters (default 2)
+/// @param mismatch Penalty for mismatching characters (default -1)
+/// @param gap_penalty Penalty for gap insertion (default -1)
 /// @return alignment_result containing score, positions, and aligned sequences
-template<std::ranges::input_range Range1, std::ranges::input_range Range2>
-inline alignment_result local_align
+template
+<   std::ranges::input_range Range1
+,   std::ranges::input_range Range2
+>
+inline alignment_result local_align_n
 (   const Range1& seq1
 ,   const Range2& seq2
+,   int match = 2
+,   int mismatch = -1
+,   int gap_penalty = -1
 )
 {   return local_align
     (   std::begin(seq1)
     ,   std::end(seq1)
     ,   std::begin(seq2)
     ,   std::end(seq2)
+    ,   match
+    ,   mismatch
+    ,   gap_penalty
     );
 }
 
 /// @brief Perform Smith-Waterman local alignment with substitution matrix
-/// (convenience wrapper for ranges)
+/// suitable for protein sequences (convenience wrapper for ranges)
 /// @tparam Range1 Range type for first sequence
 /// @tparam Range2 Range type for second sequence
 /// @tparam SubMatrix Substitution matrix type
@@ -337,8 +349,12 @@ inline alignment_result local_align
 /// @param subst_matrix Substitution matrix (e.g., BLOSUM62, PAM250)
 /// @param gap_penalty Penalty for gap insertion (default -8)
 /// @return alignment_result containing score, positions, and aligned sequences
-template<std::ranges::input_range Range1, std::ranges::input_range Range2, typename SubMatrix>
-inline alignment_result local_align
+template
+<   std::ranges::input_range Range1
+,   std::ranges::input_range Range2
+,   typename SubMatrix
+>
+inline alignment_result local_align_p
 (   const Range1& seq1
 ,   const Range2& seq2
 ,   const SubMatrix& subst_matrix
